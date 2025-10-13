@@ -9,7 +9,8 @@
             class="brand-logo d-flex align-items-center justify-content-between"
         >
             <Link href="/dashboard" class="text-nowrap logo-img">
-                <img src="/assets/images/logos/logo-light.svg" alt="Logo" />
+                <img src="/assets/images/logos/seodashlogo.png" alt="Logo" />
+                <span class="p-2 fs-5">AppLSI</span>
             </Link>
             <div
                 class="close-btn d-xl-none d-block sidebartoggler cursor-pointer"

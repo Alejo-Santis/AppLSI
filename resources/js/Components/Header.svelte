@@ -35,7 +35,11 @@
 
             <!-- Notificaciones -->
             <li class="nav-item">
-                <a class="nav-link nav-icon-hover" aria-label="notifications" href="#!">
+                <a
+                    class="nav-link nav-icon-hover"
+                    aria-label="notifications"
+                    href="#!"
+                >
                     <i class="ti ti-bell-ringing"></i>
                     <div class="notification bg-primary rounded-circle"></div>
                 </a>
@@ -46,14 +50,14 @@
             <ul
                 class="navbar-nav flex-row ms-auto align-items-center justify-content-end"
             >
-                <a href="#" target="_blank" class="btn btn-primary me-2">
+                <!-- <a href="#" target="_blank" class="btn btn-primary me-2">
                     <span class="d-none d-md-block">Check Pro Version</span>
                     <span class="d-block d-md-none">Pro</span>
                 </a>
                 <a href="#" target="_blank" class="btn btn-success">
                     <span class="d-none d-md-block">Download Free</span>
                     <span class="d-block d-md-none">Free</span>
-                </a>
+                </a> -->
 
                 <!-- User Dropdown -->
                 <li class="nav-item dropdown">

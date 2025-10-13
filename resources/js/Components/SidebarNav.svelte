@@ -14,66 +14,6 @@
                 },
             ],
         },
-        {
-            section: "UI COMPONENTS",
-            items: [
-                {
-                    label: "Buttons",
-                    url: "/ui/buttons",
-                    icon: "solar:layers-minimalistic-bold-duotone",
-                },
-                {
-                    label: "Alerts",
-                    url: "/ui/alerts",
-                    icon: "solar:danger-circle-bold-duotone",
-                },
-                {
-                    label: "Card",
-                    url: "/ui/card",
-                    icon: "solar:bookmark-square-minimalistic-bold-duotone",
-                },
-                {
-                    label: "Forms",
-                    url: "/ui/forms",
-                    icon: "solar:file-text-bold-duotone",
-                },
-                {
-                    label: "Typography",
-                    url: "/ui/typography",
-                    icon: "solar:text-field-focus-bold-duotone",
-                },
-            ],
-        },
-        {
-            section: "AUTH",
-            items: [
-                {
-                    label: "Login",
-                    url: "/login",
-                    icon: "solar:login-3-bold-duotone",
-                },
-                {
-                    label: "Register",
-                    url: "/register",
-                    icon: "solar:user-plus-rounded-bold-duotone",
-                },
-            ],
-        },
-        {
-            section: "EXTRA",
-            items: [
-                {
-                    label: "Icons",
-                    url: "/icons",
-                    icon: "solar:sticker-smile-circle-2-bold-duotone",
-                },
-                {
-                    label: "Sample Page",
-                    url: "/sample",
-                    icon: "solar:planet-3-bold-duotone",
-                },
-            ],
-        },
     ];
 
     // Estado para submenús expandibles (si los usas)
@@ -122,7 +62,7 @@
     </ul>
 
     <!-- Card de Upgrade to Pro -->
-    <div
+    <!--  <div
         class="unlimited-access hide-menu bg-primary-subtle position-relative mb-7 mt-7 rounded-3"
     >
         <div class="d-flex">
@@ -146,7 +86,7 @@
                 />
             </div>
         </div>
-    </div>
+    </div> -->
 </nav>
 
 <!-- <style>

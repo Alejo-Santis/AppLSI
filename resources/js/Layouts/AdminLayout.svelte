@@ -80,19 +80,19 @@
                 <p class="mb-0 fs-4">
                     Design and Developed by
                     <a
-                        href="https://adminmart.com/"
+                        href="#"
                         target="_blank"
                         class="pe-1 text-primary text-decoration-underline"
                     >
-                        AdminMart.com
+                        AlejoSat-Dev
                     </a>
-                    Distributed by
+                    Social Media
                     <a
-                        href="https://themewagon.com/"
+                        href="#"
                         target="_blank"
                         class="pe-1 text-primary text-decoration-underline"
                     >
-                        ThemeWagon
+                        GitHub
                     </a>
                 </p>
             </div>
