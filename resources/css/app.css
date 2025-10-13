@@ -1,0 +1,13 @@
+/* Importar Bootstrap */
+@import 'bootstrap/dist/css/bootstrap.min.css';
+
+/* Importar Simplebar desde node_modules */
+@import 'simplebar/dist/simplebar.min.css';
+
+/* Importar estilos de la plantilla SeoDash */
+@import './template.css';
+
+/* Tus estilos personalizados */
+body {
+    font-family: "Plus Jakarta Sans", sans-serif;
+}
