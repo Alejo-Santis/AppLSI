@@ -17,7 +17,7 @@
             isMiniSidebar = true;
         } else {
             isMiniSidebar = false;
-            showSidebar = false; // Cerrar overlay en desktop
+            showSidebar = false;
         }
     }
 
@@ -26,32 +26,32 @@
         if (windowWidth < 1199) {
             // En móvil: mostrar/ocultar overlay
             showSidebar = !showSidebar;
+            if (showSidebar) {
+                document.body.style.overflow = "hidden";
+            } else {
+                document.body.style.overflow = "";
+            }
         } else {
             // En desktop: mini/full sidebar
             isMiniSidebar = !isMiniSidebar;
         }
     }
 
-    // Cerrar sidebar al hacer click fuera (solo móvil)
-    function handleOutsideClick(e) {
-        if (windowWidth < 1199 && showSidebar) {
-            if (
-                !e.target.closest(".left-sidebar") &&
-                !e.target.closest(".sidebartoggler")
-            ) {
-                showSidebar = false;
-            }
+    // Cerrar sidebar al hacer click en el overlay
+    function closeOnOverlay(e) {
+        if (e.target.classList.contains("sidebar-overlay")) {
+            showSidebar = false;
+            document.body.style.overflow = "";
         }
     }
 
     onMount(() => {
         updateSidebarType();
         window.addEventListener("resize", updateSidebarType);
-        document.addEventListener("click", handleOutsideClick);
 
         return () => {
             window.removeEventListener("resize", updateSidebarType);
-            document.removeEventListener("click", handleOutsideClick);
+            document.body.style.overflow = "";
         };
     });
 </script>
@@ -67,8 +67,26 @@
     class:mini-sidebar={isMiniSidebar}
     class:show-sidebar={showSidebar}
 >
-    <Sidebar />
+    <!-- Overlay PRIMERO, luego Sidebar (solo móvil) -->
+    {#if showSidebar}
+        <div
+            class="sidebar-overlay"
+            onclick={closeOnOverlay}
+            role="button"
+            tabindex="0"
+            aria-label="Close sidebar"
+        ></div>
+    {/if}
 
+    <!-- Sidebar -->
+    <Sidebar
+        onClose={() => {
+            showSidebar = false;
+            document.body.style.overflow = "";
+        }}
+    />
+
+    <!-- Contenido principal -->
     <div class="body-wrapper">
         <Header onToggleSidebar={toggleSidebar} />
 
@@ -101,25 +119,45 @@
 </div>
 
 <style>
+    /* Solo ajustes MÍNIMOS para móvil, desktop usa el CSS original del template */
+
     /* Overlay para móvil */
+    .sidebar-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 1040;
+        display: block;
+        cursor: pointer;
+    }
+
+    /* SOLO MÓVIL: Sidebar oculto por defecto */
     @media (max-width: 1199px) {
-        .page-wrapper::before {
-            content: "";
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 99;
-            opacity: 0;
-            visibility: hidden;
-            transition: all 0.3s;
+        :global(.left-sidebar) {
+            position: fixed !important;
+            left: -270px !important;
+            top: 0 !important;
+            height: 100vh !important;
+            width: 270px !important;
+            z-index: 1050 !important;
+            transition: left 0.3s ease !important;
+            background: white !important;
         }
 
-        .page-wrapper.show-sidebar::before {
-            opacity: 1;
-            visibility: visible;
+        /* Mostrar sidebar en móvil cuando está activo */
+        :global(.page-wrapper.show-sidebar .left-sidebar) {
+            left: 0 !important;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.3) !important;
+        }
+    }
+
+    /* DESKTOP: Dejar que el CSS del template maneje todo */
+    @media (min-width: 1200px) {
+        .sidebar-overlay {
+            display: none !important;
         }
     }
 </style>

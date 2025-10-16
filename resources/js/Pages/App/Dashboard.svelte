@@ -6,13 +6,13 @@
 </script>
 
 <AdminLayout>
-    <div class="row">
-        <div class="col-lg-12">
+    <div class="row g-3">
+        <div class="col-12">
             <TrafficChart />
         </div>
 
-        <div class="col-lg-4">
-            <!-- <div class="card">
+        <!-- <div class="col-lg-4">
+            <div class="card">
                 <div class="card-body text-center">
                     <img
                         src="/assets/images/backgrounds/product-tip.png"
@@ -27,7 +27,7 @@
                     </p>
                     <button class="btn btn-primary mb-3">View All Tips</button>
                 </div>
-            </div> -->
-        </div>
+            </div>
+        </div> -->
     </div>
 </AdminLayout>

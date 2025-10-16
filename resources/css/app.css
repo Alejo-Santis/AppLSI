@@ -7,6 +7,8 @@
 /* Importar estilos de la plantilla SeoDash */
 @import './template.css';
 
+@import "bootstrap-icons/font/bootstrap-icons.css";
+
 /* Tus estilos personalizados */
 body {
     font-family: "Plus Jakarta Sans", sans-serif;

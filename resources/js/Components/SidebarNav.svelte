@@ -14,6 +14,16 @@
                 },
             ],
         },
+        {
+            section: "Departamentos",
+            items: [
+                {
+                    label: "Departamentos",
+                    url: "/departments",
+                    icon: "solar:buildings-bold",
+                },
+            ],
+        },
     ];
 
     // Estado para submenús expandibles (si los usas)

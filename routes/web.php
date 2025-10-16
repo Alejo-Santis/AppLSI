@@ -2,7 +2,9 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\DepartmentController;
 use Inertia\Inertia;
+use Symfony\Component\Routing\Attribute\DeprecatedAlias;
 
 /*
 |--------------------------------------------------------------------------
@@ -38,6 +40,16 @@ Route::middleware('auth')->group(function () {
             ]
         ]);
     })->name('dashboard');
+
+    Route::prefix('departments')->group(function () {
+        Route::get('/', [DepartmentController::class, 'departments'])->name('departments.all');
+        Route::get('/create/department', [DepartmentController::class, 'createDepartment'])->name('departments.create');
+        Route::post('/store/department', [DepartmentController::class, 'storeDepartment'])->name('departments.store');
+        Route::get('/show/department/{id}', [DeprecatedAlias::class, 'showDepartmentDetails'])->name('departments.show');
+        Route::get('/edit/department/{id}', [DepartmentController::class, 'editDepartment'])->name('departments.edit');
+        Route::put('/update/department/{id}', [DepartmentController::class, 'updateDeparment'])->name('departments.update');
+        Route::delete('/delete/department/{id}', [DepartmentController::class, 'destroyDepartment'])->name('departments.delete');
+    });
 
     /*
     |--------------------------------------------------------------------------

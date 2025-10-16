@@ -5,7 +5,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title inertia>{{ config('app.name', 'Dashboard') }}</title>
-    <link rel="shortcut icon" href="assets/images/logos/seodashlogo.png" type="image/x-icon">
+    <link rel="shortcut icon" href="/assets/images/logos/seodashlogo.png" type="image/x-icon">
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
