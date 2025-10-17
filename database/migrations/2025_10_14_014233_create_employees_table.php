@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->string('phone')->nullable();
             $table->date('hire_date');
+            $table->decimal('salary', 12, 2)->nullable();
             $table->enum('status', ['active', 'inactive', 'on_leave', 'terminated'])->default('active');
             $table->date('birth_date')->nullable();
             $table->text('address')->nullable();

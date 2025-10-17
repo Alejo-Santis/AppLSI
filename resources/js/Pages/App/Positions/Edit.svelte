@@ -1,26 +1,28 @@
 <script>
+    import AdminLayout from "@layouts/AdminLayout.svelte";
     import { Link } from "@inertiajs/svelte";
     import { useForm } from "@inertiajs/svelte";
-    import AdminLayout from "../../../Layouts/AdminLayout.svelte";
 
-    let { department, employees, errors = {} } = $props();
+    let { position, levels, errors = {} } = $props();
 
     const form = useForm({
-        name: department.name,
-        code: department.code,
-        description: department.description || "",
-        budget: department.budget || "",
-        manager_id: department.manager_id || "",
-        is_active: department.is_active,
+        title: position.title,
+        description: position.description || "",
+        level: position.level,
+        min_salary: position.min_salary || "",
+        max_salary: position.max_salary || "",
+        is_active: position.is_active,
     });
 
     function submit(e) {
         e.preventDefault();
-        $form.put(`/departments/update/${department.id}`);
+        $form.put(`/positions/update/${position.id}`);
     }
+
+    console.log({ position });
 </script>
 
-<AdminLayout title="Editar Departamento">
+<AdminLayout title="Editar Puesto">
     <div class="container-fluid">
         <!-- Header -->
         <div class="card">
@@ -28,25 +30,25 @@
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
                         <h5 class="card-title fw-semibold mb-1">
-                            <i class="bi bi-pencil"></i>
-                            Editar Departamento
+                            <i class="bi bi-person-check"></i>
+                            Editar Puesto
                         </h5>
                         <p class="text-muted mb-0">
-                            Actualiza la información del departamento <strong
-                                >{department.name}</strong
+                            Actualiza la información del puesto <strong
+                                >{position.title}</strong
                             >
                         </p>
                     </div>
                     <div class="d-flex gap-2">
                         <Link
-                            href={`/departments/${department.id}`}
+                            href={`/positions/${position.id}`}
                             class="btn btn-outline-info"
                         >
                             <i class="bi bi-eye"></i>
                             Ver Detalle
                         </Link>
                         <Link
-                            href="/departments"
+                            href="/positions"
                             class="btn btn-outline-secondary"
                         >
                             <i class="bi bi-arrow-left"></i>
@@ -64,58 +66,58 @@
                 <div class="col-lg-8">
                     <div class="card mt-3">
                         <div class="card-body">
-                            <h5 class="card-title mb-4">Información Básica</h5>
+                            <h5 class="card-title mb-4">
+                                Información del Puesto
+                            </h5>
 
                             <div class="row">
-                                <!-- Nombre -->
-                                <div class="col-md-6 mb-3">
-                                    <label for="name" class="form-label"
-                                        >Nombre del Departamento
+                                <!-- Título -->
+                                <div class="col-md-8 mb-3">
+                                    <label for="title" class="form-label"
+                                        >Título del Puesto
                                         <span class="text-danger">*</span
                                         ></label
                                     >
                                     <input
                                         type="text"
-                                        class="form-control {errors.name
+                                        class="form-control {errors.title
                                             ? 'is-invalid'
                                             : ''}"
-                                        id="name"
-                                        bind:value={$form.name}
-                                        placeholder="Ej: Recursos Humanos"
+                                        id="title"
+                                        bind:value={$form.title}
+                                        placeholder="Ej: Desarrollador Full Stack"
                                         required
                                     />
-                                    {#if errors.name}
+                                    {#if errors.title}
                                         <div class="invalid-feedback">
-                                            {errors.name}
+                                            {errors.title}
                                         </div>
                                     {/if}
                                 </div>
 
-                                <!-- Código -->
-                                <div class="col-md-6 mb-3">
-                                    <label for="code" class="form-label"
-                                        >Código
-                                        <span class="text-danger">*</span
+                                <!-- Nivel -->
+                                <div class="col-md-4 mb-3">
+                                    <label for="level" class="form-label"
+                                        >Nivel <span class="text-danger">*</span
                                         ></label
                                     >
-                                    <input
-                                        type="text"
-                                        class="form-control {errors.code
+                                    <select
+                                        class="form-select {errors.level
                                             ? 'is-invalid'
                                             : ''}"
-                                        id="code"
-                                        bind:value={$form.code}
-                                        placeholder="Ej: DEPT0001"
+                                        id="level"
+                                        bind:value={$form.level}
                                         required
-                                    />
-                                    {#if errors.code}
+                                    >
+                                        {#each Object.entries(levels) as [key, label]}
+                                            <option value={key}>{label}</option>
+                                        {/each}
+                                    </select>
+                                    {#if errors.level}
                                         <div class="invalid-feedback">
-                                            {errors.code}
+                                            {errors.level}
                                         </div>
                                     {/if}
-                                    <small class="text-muted">
-                                        El código debe ser único
-                                    </small>
                                 </div>
 
                                 <!-- Descripción -->
@@ -130,7 +132,7 @@
                                         id="description"
                                         bind:value={$form.description}
                                         rows="4"
-                                        placeholder="Describe las funciones y responsabilidades del departamento..."
+                                        placeholder="Describe las responsabilidades, requisitos y competencias del puesto..."
                                     ></textarea>
                                     {#if errors.description}
                                         <div class="invalid-feedback">
@@ -139,58 +141,78 @@
                                     {/if}
                                 </div>
 
-                                <!-- Presupuesto -->
-                                <div class="col-md-6 mb-3">
-                                    <label for="budget" class="form-label"
-                                        >Presupuesto Anual</label
+                                <!-- Rango Salarial -->
+                                <div class="col-12 mb-3">
+                                    <label class="form-label" for=""
+                                        >Rango Salarial (Opcional)</label
                                     >
-                                    <div class="input-group">
-                                        <span class="input-group-text">$</span>
-                                        <input
-                                            type="number"
-                                            class="form-control {errors.budget
-                                                ? 'is-invalid'
-                                                : ''}"
-                                            id="budget"
-                                            bind:value={$form.budget}
-                                            placeholder="0.00"
-                                            step="0.01"
-                                            min="0"
-                                        />
-                                    </div>
-                                    {#if errors.budget}
-                                        <div class="invalid-feedback d-block">
-                                            {errors.budget}
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <label
+                                                for="min_salary"
+                                                class="form-label small"
+                                                >Salario Mínimo</label
+                                            >
+                                            <div class="input-group">
+                                                <span class="input-group-text"
+                                                    >$</span
+                                                >
+                                                <input
+                                                    type="number"
+                                                    class="form-control {errors.min_salary
+                                                        ? 'is-invalid'
+                                                        : ''}"
+                                                    id="min_salary"
+                                                    bind:value={
+                                                        $form.min_salary
+                                                    }
+                                                    placeholder="0.00"
+                                                    step="0.01"
+                                                    min="0"
+                                                />
+                                            </div>
+                                            {#if errors.min_salary}
+                                                <div
+                                                    class="invalid-feedback d-block"
+                                                >
+                                                    {errors.min_salary}
+                                                </div>
+                                            {/if}
                                         </div>
-                                    {/if}
-                                </div>
 
-                                <!-- Manager -->
-                                <div class="col-md-6 mb-3">
-                                    <label for="manager_id" class="form-label"
-                                        >Manager / Jefe</label
-                                    >
-                                    <select
-                                        class="form-select {errors.manager_id
-                                            ? 'is-invalid'
-                                            : ''}"
-                                        id="manager_id"
-                                        bind:value={$form.manager_id}
-                                    >
-                                        <option value="">
-                                            Sin asignar...
-                                        </option>
-                                        {#each employees as employee}
-                                            <option value={employee.id}>
-                                                {employee.name} - {employee.email}
-                                            </option>
-                                        {/each}
-                                    </select>
-                                    {#if errors.manager_id}
-                                        <div class="invalid-feedback">
-                                            {errors.manager_id}
+                                        <div class="col-md-6">
+                                            <label
+                                                for="max_salary"
+                                                class="form-label small"
+                                                >Salario Máximo</label
+                                            >
+                                            <div class="input-group">
+                                                <span class="input-group-text"
+                                                    >$</span
+                                                >
+                                                <input
+                                                    type="number"
+                                                    class="form-control {errors.max_salary
+                                                        ? 'is-invalid'
+                                                        : ''}"
+                                                    id="max_salary"
+                                                    bind:value={
+                                                        $form.max_salary
+                                                    }
+                                                    placeholder="0.00"
+                                                    step="0.01"
+                                                    min="0"
+                                                />
+                                            </div>
+                                            {#if errors.max_salary}
+                                                <div
+                                                    class="invalid-feedback d-block"
+                                                >
+                                                    {errors.max_salary}
+                                                </div>
+                                            {/if}
                                         </div>
-                                    {/if}
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -228,24 +250,24 @@
                                 </label>
                             </div>
                             <small class="text-muted d-block mt-2">
-                                Los departamentos inactivos no aparecerán en los
+                                Los puestos inactivos no aparecerán en los
                                 selectores
                             </small>
                         </div>
                     </div>
 
-                    <!-- Información del Departamento -->
+                    <!-- Información -->
                     <div class="card mt-3">
                         <div class="card-body">
                             <h5 class="card-title mb-3">
-                                <i class="ti ti-info-circle"></i> Información
+                                <i class="bi bi-info-circle"></i> Información
                             </h5>
                             <ul class="list-unstyled mb-0">
                                 <li class="mb-2">
                                     <small class="text-muted">
                                         <strong>Creado:</strong><br />
                                         {new Date(
-                                            department.created_at,
+                                            position.created_at,
                                         ).toLocaleDateString("es-CO", {
                                             year: "numeric",
                                             month: "long",
@@ -258,7 +280,7 @@
                                         <strong>Última actualización:</strong
                                         ><br />
                                         {new Date(
-                                            department.updated_at,
+                                            position.updated_at,
                                         ).toLocaleDateString("es-CO", {
                                             year: "numeric",
                                             month: "long",
@@ -271,15 +293,15 @@
                     </div>
 
                     <!-- Advertencias -->
-                    {#if department.employees && department.employees.length > 0}
+                    {#if position.employees && position.employees.length > 0}
                         <div class="card mt-3 border-warning">
                             <div class="card-body">
                                 <h6 class="text-warning mb-2">
-                                    <i class="ti ti-alert-triangle"></i> Advertencia
+                                    <i class="bi bi-exclamation-triangle"></i> Advertencia
                                 </h6>
                                 <small class="text-muted">
-                                    Este departamento tiene <strong
-                                        >{department.employees.length}</strong
+                                    Este puesto tiene <strong
+                                        >{position.employees.length}</strong
                                     > empleado(s) asignado(s). Los cambios pueden
                                     afectar su información.
                                 </small>
@@ -294,11 +316,11 @@
                 <div class="card-body">
                     <div class="d-flex justify-content-end gap-2">
                         <Link
-                            href="/departments"
+                            href="/positions"
                             class="btn btn-light"
                             disabled={$form.processing}
                         >
-                            <i class="ti ti-x"></i>
+                            <i class="bi bi-x"></i>
                             Cancelar
                         </Link>
                         <button
@@ -312,7 +334,7 @@
                                 ></span>
                                 Actualizando...
                             {:else}
-                                <i class="ti ti-check"></i>
+                                <i class="bi bi-check"></i>
                                 Guardar Cambios
                             {/if}
                         </button>

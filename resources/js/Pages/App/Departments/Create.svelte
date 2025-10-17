@@ -16,7 +16,7 @@
 
     function submit(e) {
         e.preventDefault();
-        $form.post("/departments/store/department");
+        $form.post("/departments/store");
     }
 
     function generateCode() {
@@ -32,6 +32,7 @@
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
                         <h5 class="card-title fw-semibold mb-1">
+                            <i class="bi bi-building-add"></i>
                             Crear Nuevo Departamento
                         </h5>
                         <p class="text-muted mb-0">
@@ -39,7 +40,7 @@
                         </p>
                     </div>
                     <Link href="/departments" class="btn btn-outline-secondary">
-                        <i class="ti ti-arrow-left"></i>
+                        <i class="bi bi-arrow-left"></i>
                         Volver
                     </Link>
                 </div>
@@ -104,7 +105,8 @@
                                             onclick={generateCode}
                                             title="Generar código automático"
                                         >
-                                            <i class="bi bi-arrow-clockwise"></i>
+                                            <i class="bi bi-arrow-clockwise"
+                                            ></i>
                                         </button>
                                     </div>
                                     {#if errors.code}
@@ -240,25 +242,25 @@
                     <div class="card mt-3">
                         <div class="card-body">
                             <h5 class="card-title mb-3">
-                                <i class="ti ti-info-circle"></i> Información
+                                <i class="bi bi-info-circle"></i> Información
                             </h5>
                             <ul class="list-unstyled mb-0">
                                 <li class="mb-2">
                                     <small class="text-muted">
-                                        <i class="ti ti-check"></i> Los campos
+                                        <i class="bi bi-check"></i> Los campos
                                         marcados con
                                         <span class="text-danger">*</span> son obligatorios
                                     </small>
                                 </li>
                                 <li class="mb-2">
                                     <small class="text-muted">
-                                        <i class="ti ti-check"></i> El código debe
+                                        <i class="bi bi-check"></i> El código debe
                                         ser único en el sistema
                                     </small>
                                 </li>
                                 <li class="mb-2">
                                     <small class="text-muted">
-                                        <i class="ti ti-check"></i> Puedes asignar
+                                        <i class="bi bi-check"></i> Puedes asignar
                                         empleados después de crear el departamento
                                     </small>
                                 </li>
@@ -277,7 +279,7 @@
                             class="btn btn-light"
                             disabled={$form.processing}
                         >
-                            <i class="ti ti-x"></i>
+                            <i class="bi bi-x-circle"></i>
                             Cancelar
                         </Link>
                         <button
@@ -291,7 +293,7 @@
                                 ></span>
                                 Guardando...
                             {:else}
-                                <i class="ti ti-check"></i>
+                                <i class="bi bi-check"></i>
                                 Crear Departamento
                             {/if}
                         </button>

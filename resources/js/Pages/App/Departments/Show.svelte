@@ -14,6 +14,7 @@
                     <div>
                         <div class="d-flex align-items-center gap-2 mb-2">
                             <h5 class="card-title fw-semibold mb-0">
+                                <i class="bi bi-buildings"></i>
                                 {department.name}
                             </h5>
                             {#if department.is_active}
@@ -44,14 +45,14 @@
                             href={`/departments/${department.id}/edit`}
                             class="btn btn-primary"
                         >
-                            <i class="ti ti-edit"></i>
+                            <i class="bi bi-pencil"></i>
                             Editar
                         </Link>
                         <Link
                             href="/departments"
                             class="btn btn-outline-secondary"
                         >
-                            <i class="ti ti-arrow-left"></i>
+                            <i class="bi bi-arrow-left"></i>
                             Volver
                         </Link>
                     </div>
@@ -69,7 +70,7 @@
                                 class="rounded-circle bg-light-primary text-primary d-flex align-items-center justify-content-center"
                                 style="width: 50px; height: 50px;"
                             >
-                                <i class="ti ti-users fs-6"></i>
+                                <i class="bi bi-person-circle fs-6"></i>
                             </div>
                             <div class="ms-3">
                                 <h4 class="mb-0 fw-semibold">
@@ -90,7 +91,7 @@
                                 class="rounded-circle bg-light-success text-success d-flex align-items-center justify-content-center"
                                 style="width: 50px; height: 50px;"
                             >
-                                <i class="ti ti-user-check fs-6"></i>
+                                <i class="bi bi-person-check fs-6"></i>
                             </div>
                             <div class="ms-3">
                                 <h4 class="mb-0 fw-semibold">
@@ -111,7 +112,7 @@
                                 class="rounded-circle bg-light-info text-info d-flex align-items-center justify-content-center"
                                 style="width: 50px; height: 50px;"
                             >
-                                <i class="ti ti-cash fs-6"></i>
+                                <i class="bi bi-cash fs-6"></i>
                             </div>
                             <div class="ms-3">
                                 <h4 class="mb-0 fw-semibold">
@@ -138,7 +139,7 @@
                                 class="rounded-circle bg-light-warning text-warning d-flex align-items-center justify-content-center"
                                 style="width: 50px; height: 50px;"
                             >
-                                <i class="ti ti-chart-line fs-6"></i>
+                                <i class="bi bi-bar-chart fs-6"></i>
                             </div>
                             <div class="ms-3">
                                 <h4 class="mb-0 fw-semibold">
@@ -279,7 +280,7 @@
                                 href="/employees/create"
                                 class="btn btn-sm btn-primary"
                             >
-                                <i class="ti ti-plus"></i>
+                                <i class="bi bi-plus"></i>
                                 Agregar Empleado
                             </Link>
                         </div>

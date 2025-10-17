@@ -24,6 +24,16 @@
                 },
             ],
         },
+        {
+            section: "Puestos",
+            items: [
+                {
+                    label: "Puestos",
+                    url: "/positions",
+                    icon: "solar:user-id-bold",
+                },
+            ],
+        },
     ];
 
     // Estado para submenús expandibles (si los usas)

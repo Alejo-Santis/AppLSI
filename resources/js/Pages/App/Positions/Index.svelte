@@ -1,30 +1,29 @@
 <script>
+    import AdminLayout from "@layouts/AdminLayout.svelte";
     import { Link, router } from "@inertiajs/svelte";
-    import { page } from "@inertiajs/svelte";
-    import AdminLayout from "../../../Layouts/AdminLayout.svelte";
 
-    let { departments, filters = {} } = $props();
+    let { positions, filters = {}, levels } = $props();
 
     let search = $state(filters.search || "");
     let status = $state(filters.status || "all");
-    let hasManager = $state(filters.has_manager || "all");
+    let level = $state(filters.level || "all");
     let perPage = $state(filters.per_page || 10);
-    let sortField = $state(filters.sort_field || "name");
+    let sortField = $state(filters.sort_field || "title");
     let sortDirection = $state(filters.sort_direction || "asc");
 
     let deleteModal = $state({
         show: false,
-        department: null,
+        position: null,
     });
 
     // Aplicar filtros
     function applyFilters() {
         router.get(
-            "/departments",
+            "/positions",
             {
                 search: search,
                 status: status,
-                has_manager: hasManager,
+                level: level,
                 per_page: perPage,
                 sort_field: sortField,
                 sort_direction: sortDirection,
@@ -40,9 +39,9 @@
     function clearFilters() {
         search = "";
         status = "all";
-        hasManager = "all";
+        level = "all";
         perPage = 10;
-        sortField = "name";
+        sortField = "title";
         sortDirection = "asc";
         applyFilters();
     }
@@ -59,16 +58,16 @@
     }
 
     // Confirmar eliminación
-    function confirmDelete(department) {
-        deleteModal = { show: true, department };
+    function confirmDelete(position) {
+        deleteModal = { show: true, position };
     }
 
-    // Eliminar departamento
-    function deleteDepartment() {
-        if (deleteModal.department) {
-            router.delete(`/departments/delete/${deleteModal.department.id}`, {
+    // Eliminar puesto
+    function deletePosition() {
+        if (deleteModal.position) {
+            router.delete(`/positions/${deleteModal.position.id}`, {
                 onSuccess: () => {
-                    deleteModal = { show: false, department: null };
+                    deleteModal = { show: false, position: null };
                 },
             });
         }
@@ -84,9 +83,22 @@
             }, 500);
         }
     });
+
+    // Badge de nivel
+    function getLevelBadgeClass(lvl) {
+        const badges = {
+            junior: "bg-light-info text-info",
+            mid: "bg-light-primary text-primary",
+            senior: "bg-light-success text-success",
+            lead: "bg-light-warning text-warning",
+            manager: "bg-light-secondary text-secondary",
+            director: "bg-light-danger text-danger",
+        };
+        return badges[lvl] || "bg-light-secondary text-secondary";
+    }
 </script>
 
-<AdminLayout title="Departamentos">
+<AdminLayout title="Puestos">
     <div class="container-fluid">
         <!-- Header -->
         <div class="card">
@@ -94,19 +106,19 @@
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
                         <h5 class="card-title fw-semibold mb-1">
-                            <i class="bi bi-building-gear"></i>
-                            Gestión de Departamentos
+                            <i class="bi bi-person-vcard"></i>
+                            Gestión de Puestos
                         </h5>
                         <p class="text-muted mb-0">
-                            Administra los departamentos de tu organización
+                            Administra los puestos y roles de tu organización
                         </p>
                     </div>
                     <Link
-                        href="/departments/create"
+                        href="/positions/create"
                         class="btn btn-primary d-flex align-items-center gap-2"
                     >
                         <i class="bi bi-plus"></i>
-                        Nuevo Departamento
+                        Nuevo Puesto
                     </Link>
                 </div>
             </div>
@@ -118,14 +130,30 @@
                 <div class="row g-3">
                     <!-- Búsqueda -->
                     <div class="col-md-4">
-                        <label class="form-label" for="code">Buscar</label>
+                        <label class="form-label" for="search">Buscar</label>
                         <input
-                            id="code"
+                            id="search"
                             type="text"
                             class="form-control"
-                            placeholder="Nombre, código o descripción..."
+                            placeholder="Título o descripción..."
                             bind:value={search}
                         />
+                    </div>
+
+                    <!-- Nivel -->
+                    <div class="col-md-2">
+                        <label class="form-label" for="level">Nivel</label>
+                        <select
+                            id="level"
+                            class="form-select"
+                            bind:value={level}
+                            onchange={applyFilters}
+                        >
+                            <option value="all">Todos</option>
+                            {#each Object.entries(levels) as [key, label]}
+                                <option value={key}>{label}</option>
+                            {/each}
+                        </select>
                     </div>
 
                     <!-- Estado -->
@@ -143,26 +171,11 @@
                         </select>
                     </div>
 
-                    <!-- Manager -->
-                    <div class="col-md-2">
-                        <label class="form-label" for="manager">Manager</label>
-                        <select
-                            id="manager"
-                            class="form-select"
-                            bind:value={hasManager}
-                            onchange={applyFilters}
-                        >
-                            <option value="all">Todos</option>
-                            <option value="with">Con Manager</option>
-                            <option value="without">Sin Manager</option>
-                        </select>
-                    </div>
-
                     <!-- Por página -->
                     <div class="col-md-2">
-                        <label class="form-label" for="show">Mostrar</label>
+                        <label class="form-label" for="filters">Mostrar</label>
                         <select
-                            id="show"
+                            id="filters"
                             class="form-select"
                             bind:value={perPage}
                             onchange={applyFilters}
@@ -195,11 +208,11 @@
                         <thead>
                             <tr>
                                 <th
-                                    onclick={() => sortBy("code")}
+                                    onclick={() => sortBy("title")}
                                     style="cursor: pointer"
                                 >
-                                    Código
-                                    {#if sortField === "code"}
+                                    Puesto
+                                    {#if sortField === "title"}
                                         <i
                                             class="ti ti-arrow-{sortDirection ===
                                             'asc'
@@ -209,11 +222,11 @@
                                     {/if}
                                 </th>
                                 <th
-                                    onclick={() => sortBy("name")}
+                                    onclick={() => sortBy("level")}
                                     style="cursor: pointer"
                                 >
-                                    Nombre
-                                    {#if sortField === "name"}
+                                    Nivel
+                                    {#if sortField === "level"}
                                         <i
                                             class="ti ti-arrow-{sortDirection ===
                                             'asc'
@@ -222,70 +235,63 @@
                                         ></i>
                                     {/if}
                                 </th>
-                                <th>Manager</th>
+                                <th>Rango Salarial</th>
                                 <th class="text-center">Empleados</th>
-                                <th class="text-end">Presupuesto</th>
                                 <th class="text-center">Estado</th>
                                 <th class="text-center">Acciones</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {#if departments.data.length > 0}
-                                {#each departments.data as department}
+                            {#if positions.data.length > 0}
+                                {#each positions.data as position}
                                     <tr>
-                                        <td>
-                                            <span
-                                                class="badge bg-light-primary text-primary"
-                                            >
-                                                {department.code}
-                                            </span>
-                                        </td>
                                         <td>
                                             <div>
                                                 <h6 class="mb-0">
-                                                    {department.name}
+                                                    {position.title}
                                                 </h6>
-                                                {#if department.description}
+                                                {#if position.description}
                                                     <small class="text-muted">
-                                                        {department.description.substring(
+                                                        {position.description.substring(
                                                             0,
-                                                            50,
+                                                            60,
                                                         )}...
                                                     </small>
                                                 {/if}
                                             </div>
                                         </td>
                                         <td>
-                                            {#if department.manager}
-                                                <div
-                                                    class="d-flex align-items-center gap-2"
-                                                >
-                                                    <div
-                                                        class="rounded-circle bg-light-info text-info d-flex align-items-center justify-content-center"
-                                                        style="width: 35px; height: 35px;"
+                                            <span
+                                                class="badge {getLevelBadgeClass(
+                                                    position.level,
+                                                )}"
+                                            >
+                                                {levels[position.level]}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            {#if position.min_salary && position.max_salary}
+                                                <div>
+                                                    <small
+                                                        class="text-muted d-block"
                                                     >
-                                                        <i
-                                                            class="ti ti-user fs-5"
-                                                        ></i>
-                                                    </div>
-                                                    <div>
-                                                        <h6 class="mb-0 fs-3">
-                                                            {department.manager
-                                                                .first_name}
-                                                            {department.manager
-                                                                .last_name}
-                                                        </h6>
-                                                        <small
-                                                            class="text-muted"
-                                                        >
-                                                            {department.manager
-                                                                .email}
-                                                        </small>
-                                                    </div>
+                                                        Mín: ${parseFloat(
+                                                            position.min_salary,
+                                                        ).toLocaleString(
+                                                            "es-CO",
+                                                        )}
+                                                    </small>
+                                                    <small class="text-muted">
+                                                        Máx: ${parseFloat(
+                                                            position.max_salary,
+                                                        ).toLocaleString(
+                                                            "es-CO",
+                                                        )}
+                                                    </small>
                                                 </div>
                                             {:else}
                                                 <span class="text-muted">
-                                                    Sin asignar
+                                                    No definido
                                                 </span>
                                             {/if}
                                         </td>
@@ -293,25 +299,12 @@
                                             <span
                                                 class="badge bg-light-secondary text-secondary fs-3"
                                             >
-                                                {department.employees?.length ||
+                                                {position.employees?.length ||
                                                     0}
                                             </span>
                                         </td>
-                                        <td class="text-end">
-                                            {#if department.budget}
-                                                <span class="fw-semibold">
-                                                    ${parseFloat(
-                                                        department.budget,
-                                                    ).toLocaleString("es-CO")}
-                                                </span>
-                                            {:else}
-                                                <span class="text-muted">
-                                                    N/A
-                                                </span>
-                                            {/if}
-                                        </td>
                                         <td class="text-center">
-                                            {#if department.is_active}
+                                            {#if position.is_active}
                                                 <span
                                                     class="badge bg-light-success text-success"
                                                 >
@@ -328,14 +321,14 @@
                                         <td class="text-center">
                                             <div class="btn-group" role="group">
                                                 <Link
-                                                    href={`/departments/show/${department.id}`}
+                                                    href={`/positions/show/${position.id}`}
                                                     class="btn btn-sm btn-outline-primary"
                                                     title="Ver detalles"
                                                 >
                                                     <i class="bi bi-eye"></i>
                                                 </Link>
                                                 <Link
-                                                    href={`/departments/edit/${department.id}`}
+                                                    href={`/positions/edit/${position.id}`}
                                                     class="btn btn-sm btn-outline-warning"
                                                     title="Editar"
                                                 >
@@ -345,9 +338,7 @@
                                                     type="button"
                                                     class="btn btn-sm btn-outline-danger"
                                                     onclick={() =>
-                                                        confirmDelete(
-                                                            department,
-                                                        )}
+                                                        confirmDelete(position)}
                                                     title="Eliminar"
                                                 >
                                                     <i class="bi bi-trash"></i>
@@ -358,12 +349,12 @@
                                 {/each}
                             {:else}
                                 <tr>
-                                    <td colspan="7" class="text-center py-5">
+                                    <td colspan="6" class="text-center py-5">
                                         <div class="text-muted">
-                                            <i class="ti ti-folder-off fs-9"
+                                            <i class="bi bi-briefcase-off fs-9"
                                             ></i>
                                             <p class="mt-2">
-                                                No se encontraron departamentos
+                                                No se encontraron puestos
                                             </p>
                                         </div>
                                     </td>
@@ -374,17 +365,17 @@
                 </div>
 
                 <!-- Paginación -->
-                {#if departments.data.length > 0}
+                {#if positions.data.length > 0}
                     <div
                         class="d-flex justify-content-between align-items-center mt-3"
                     >
                         <div class="text-muted">
-                            Mostrando {departments.from} a {departments.to} de {departments.total}
+                            Mostrando {positions.from} a {positions.to} de {positions.total}
                             registros
                         </div>
                         <nav>
                             <ul class="pagination mb-0">
-                                {#each departments.links as link}
+                                {#each positions.links as link}
                                     <li
                                         class="page-item {link.active
                                             ? 'active'
@@ -427,21 +418,18 @@
                         <button
                             type="button"
                             class="btn-close"
+                            aria-label="close"
                             onclick={() =>
-                                (deleteModal = {
-                                    show: false,
-                                    department: null,
-                                })}
-                            aria-label="confirmar eliminacion"
+                                (deleteModal = { show: false, position: null })}
                         ></button>
                     </div>
                     <div class="modal-body">
                         <p>
-                            ¿Estás seguro de que deseas eliminar el departamento
-                            <strong>{deleteModal.department?.name}</strong>?
+                            ¿Estás seguro de que deseas eliminar el puesto
+                            <strong>{deleteModal.position?.title}</strong>?
                         </p>
                         <p class="text-danger mb-0">
-                            <i class="ti ti-alert-triangle"></i> Esta acción no se
+                            <i class="bi bi-alert-triangle"></i> Esta acción no se
                             puede deshacer.
                         </p>
                     </div>
@@ -450,17 +438,15 @@
                             type="button"
                             class="btn btn-light"
                             onclick={() =>
-                                (deleteModal = {
-                                    show: false,
-                                    department: null,
-                                })}
+                                (deleteModal = { show: false, position: null })}
                         >
+                            <i class="bi bi-x-circle"></i>
                             Cancelar
                         </button>
                         <button
                             type="button"
                             class="btn btn-danger"
-                            onclick={deleteDepartment}
+                            onclick={deletePosition}
                         >
                             <i class="bi bi-trash"></i> Eliminar
                         </button>
