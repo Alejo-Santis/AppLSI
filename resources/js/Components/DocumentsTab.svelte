@@ -126,26 +126,29 @@
     }
 
     function deleteDocument(document) {
-        router.delete(`/employees/${employee.id}/documents/${document.id}`, {
-            preserveScroll: true,
-            onSuccess: () => {
-                loadDocuments();
-                Swal.fire({
-                    title: "¡Eliminado!",
-                    text: "Documento eliminado exitosamente",
-                    icon: "success",
-                    timer: 2000,
-                    showConfirmButton: false,
-                });
+        router.delete(
+            `/employees/${employee.id}/documents/${document.id}/delete`,
+            {
+                preserveScroll: true,
+                onSuccess: () => {
+                    loadDocuments();
+                    Swal.fire({
+                        title: "¡Eliminado!",
+                        text: "Documento eliminado exitosamente",
+                        icon: "success",
+                        timer: 2000,
+                        showConfirmButton: false,
+                    });
+                },
+                onError: () => {
+                    Swal.fire({
+                        title: "Error",
+                        text: "No se pudo eliminar el documento",
+                        icon: "error",
+                    });
+                },
             },
-            onError: () => {
-                Swal.fire({
-                    title: "Error",
-                    text: "No se pudo eliminar el documento",
-                    icon: "error",
-                });
-            },
-        });
+        );
     }
 
     function downloadDocument(document) {
