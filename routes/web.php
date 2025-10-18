@@ -48,7 +48,7 @@ Route::middleware('auth')->group(function () {
         Route::post('/store', [DepartmentController::class, 'storeDepartment'])->name('departments.store');
         Route::get('/show/{id}', [DepartmentController::class, 'showDepartmentDetails'])->name('departments.show');
         Route::get('/edit/{id}', [DepartmentController::class, 'editDepartment'])->name('departments.edit');
-        Route::put('/update/{id}', [DepartmentController::class, 'updateDepartment'])->name('departments.update');
+        Route::put('/update/{id}', [DepartmentController::class, 'updateDeparment'])->name('departments.update');
         Route::delete('/delete/{id}', [DepartmentController::class, 'destroyDepartment'])->name('departments.delete');
     });
 

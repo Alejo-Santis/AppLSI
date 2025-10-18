@@ -2,6 +2,7 @@
     import { onMount } from "svelte";
     import Sidebar from "@components/Sidebar.svelte";
     import Header from "@components/Header.svelte";
+    import SwalAlert from "@components/SwalAlert.svelte"; // ← NUEVO
 
     let { children } = $props();
 
@@ -24,7 +25,6 @@
     // Toggle manual del sidebar (botón hamburguesa)
     function toggleSidebar() {
         if (windowWidth < 1199) {
-            // En móvil: mostrar/ocultar overlay
             showSidebar = !showSidebar;
             if (showSidebar) {
                 document.body.style.overflow = "hidden";
@@ -32,7 +32,6 @@
                 document.body.style.overflow = "";
             }
         } else {
-            // En desktop: mini/full sidebar
             isMiniSidebar = !isMiniSidebar;
         }
     }
@@ -55,6 +54,9 @@
         };
     });
 </script>
+
+<!-- Componente de alertas SweetAlert2 (se ejecuta automáticamente) -->
+<SwalAlert />
 
 <div
     class="page-wrapper"
@@ -95,24 +97,22 @@
 
             <!-- Footer -->
             <div class="py-6 px-6 text-center">
-                <p class="mb-0 fs-4">
-                    Design and Developed by
-                    <a
-                        href="#"
-                        target="_blank"
-                        class="pe-1 text-primary text-decoration-underline"
-                    >
-                        AlejoSat-Dev
-                    </a>
-                    Social Media
-                    <a
-                        href="#"
-                        target="_blank"
-                        class="pe-1 text-primary text-decoration-underline"
-                    >
-                        GitHub
-                    </a>
-                </p>
+                Design and Developed by
+                <a
+                    href="#"
+                    target="_blank"
+                    class="pe-1 text-primary text-decoration-underline"
+                >
+                    AlejoSat-Dev
+                </a>
+                Social Media
+                <a
+                    href="#"
+                    target="_blank"
+                    class="pe-1 text-primary text-decoration-underline"
+                >
+                    GitHub
+                </a>
             </div>
         </div>
     </div>

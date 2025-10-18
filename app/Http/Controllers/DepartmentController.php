@@ -4,8 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Models\Department;
 use App\Models\Employee;
+use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Inertia\Inertia;
+use SweetAlert2\Laravel\Swal;
 
 class DepartmentController extends Controller
 {
@@ -70,26 +73,41 @@ class DepartmentController extends Controller
      */
     public function storeDepartment(Request $request)
     {
-        $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'code' => ['required', 'string', 'max:50', 'unique:departments,code'],
-            'description' => ['nullable', 'string'],
-            'budget' => ['nullable', 'numeric', 'min:0'],
-            'manager_id' => ['nullable', 'exists:employees,id'],
-            'is_active' => ['boolean'],
-        ], [
-            'name.required' => 'El nombre del departamento es obligatorio',
-            'code.required' => 'El código es obligatorio',
-            'code.unique' => 'Este código ya está en uso',
-            'budget.numeric' => 'El presupuesto debe ser un número válido',
-            'budget.min' => 'El presupuesto no puede ser negativo',
-            'manager_id.exists' => 'El empleado seleccionado no existe',
-        ]);
+        try {
 
-        $department = Department::create($validated);
+            $validated = $request->validate([
+                'name' => ['required', 'string', 'max:255'],
+                'code' => ['required', 'string', 'max:50', 'unique:departments,code'],
+                'description' => ['nullable', 'string'],
+                'budget' => ['nullable', 'numeric', 'min:0'],
+                'manager_id' => ['nullable', 'exists:employees,id'],
+                'is_active' => ['boolean'],
+            ], [
+                'name.required' => 'El nombre del departamento es obligatorio',
+                'code.required' => 'El código es obligatorio',
+                'code.unique' => 'Este código ya está en uso',
+                'budget.numeric' => 'El presupuesto debe ser un número válido',
+                'budget.min' => 'El presupuesto no puede ser negativo',
+                'manager_id.exists' => 'El empleado seleccionado no existe',
+            ]);
 
-        return redirect()->route('departments.all')
-            ->with('success', 'Departamento creado exitosamente');
+            $department = Department::create($validated);
+
+            Swal::success([
+                'title' => 'Operación Exitosa',
+                'text' => 'Departamento Creado Exitosamente.',
+            ]);
+
+            return redirect()->route('departments.all');
+        } catch (Exception $e) {
+            Swal::error([
+                'title' => '¡Error!',
+                'text' => 'Ocurrió un error al crear el departamento.' . $e->getMessage(),
+                'icon' => 'error',
+            ]);
+
+            return back()->withInput();
+        }
     }
 
     /**
@@ -164,32 +182,57 @@ class DepartmentController extends Controller
      */
     public function updateDeparment(Request $request, $id)
     {
-        $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'code' => ['required', 'string', 'max:50', 'unique:departments,code,id'],
-            'description' => ['nullable', 'string'],
-            'budget' => ['nullable', 'numeric', 'min:0'],
-            'manager_id' => ['nullable', 'exists:employees,id'],
-            'is_active' => ['boolean'],
-        ], [
-            'name.required' => 'El nombre del departamento es obligatorio',
-            'code.required' => 'El código es obligatorio',
-            'code.unique' => 'Este código ya está en uso',
-            'budget.numeric' => 'El presupuesto debe ser un número válido',
-            'budget.min' => 'El presupuesto no puede ser negativo',
-            'manager_id.exists' => 'El empleado seleccionado no existe',
-        ]);
+        try {
+            $validated = $request->validate([
+                'name' => ['required', 'string', 'max:255'],
+                'code' => [
+                    'required',
+                    'string',
+                    'max:50',
+                    Rule::unique('departments', 'code')->ignore($id),
+                ],
+                'description' => ['nullable', 'string'],
+                'budget' => ['nullable', 'numeric', 'min:0'],
+                'manager_id' => ['nullable', 'exists:employees,id'],
+                'is_active' => ['boolean'],
+            ], [
+                'name.required' => 'El nombre del departamento es obligatorio',
+                'code.required' => 'El código es obligatorio',
+                'code.unique' => 'Este código ya está en uso',
+                'budget.numeric' => 'El presupuesto debe ser un número válido',
+                'budget.min' => 'El presupuesto no puede ser negativo',
+                'manager_id.exists' => 'El empleado seleccionado no existe',
+            ]);
 
-        $department = Department::find($id);
+            $department = Department::find($id);
 
-        if (!$department) {
-            return back()->with('error', 'No se encontro el departamento con ese id');
+            if (!$department) {
+                Swal::error([
+                    'title' => '¡Error!',
+                    'text' => 'No se encontro el departamento con ese id',
+                    'icon' => 'error',
+                ]);
+                return back();
+            }
+
+            $department->update($validated);
+
+            Swal::success([
+                'title' => 'Actualizado!',
+                'text' => 'Departamento actualizado exitosamente',
+                'icon' => 'success',
+            ]);
+
+            return redirect()->route('departments.all');
+        } catch (Exception $e) {
+            Swal::error([
+                'title' => '¡Error!',
+                'text' => 'No se puede actualizar el departamento.' . $e->getMessage(),
+                'icon' => 'error',
+            ]);
+
+            return back()->withInput();
         }
-
-        $department->update($validated);
-
-        return redirect()->route('departments.all')
-            ->with('success', 'Departamento actualizado exitosamente');
     }
 
     /**
@@ -200,17 +243,33 @@ class DepartmentController extends Controller
         $department = Department::find($id);
 
         if (!$department) {
-            return back()->with('error', 'No se encontro el departamento a eliminar.');
+            Swal::error([
+                'title' => '¡Error!',
+                'text' => 'No se puede eliminar el departamento porque tiene empleados asignados',
+                'icon' => 'error',
+            ]);
+
+            return back();
         }
 
         if (!$department->canBeDeleted()) {
-            return back()->with('error', 'No se puede eliminar el departamento porque tiene empleados asignados');
+            Swal::error([
+                'title' => '¡Error!',
+                'text' => 'No se puede eliminar el departamento porque tiene empleados asignados',
+                'icon' => 'error',
+            ]);
+            return back();
         }
 
         $department->delete();
 
-        return redirect()->route('departments.all')
-            ->with('success', 'Departamento eliminado exitosamente');
+        Swal::success([
+            'title' => '¡Eliminado!',
+            'text' => 'Departamento eliminado exitosamente',
+            'icon' => 'success',
+        ]);
+
+        return redirect()->route('departments.all');
     }
 
     /**

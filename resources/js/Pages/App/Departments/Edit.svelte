@@ -298,7 +298,7 @@
                             class="btn btn-light"
                             disabled={$form.processing}
                         >
-                            <i class="ti ti-x"></i>
+                            <i class="bi bi-x-circle"></i>
                             Cancelar
                         </Link>
                         <button
@@ -312,7 +312,7 @@
                                 ></span>
                                 Actualizando...
                             {:else}
-                                <i class="ti ti-check"></i>
+                                <i class="bi bi-check"></i>
                                 Guardar Cambios
                             {/if}
                         </button>

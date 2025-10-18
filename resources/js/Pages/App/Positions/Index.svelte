@@ -65,7 +65,7 @@
     // Eliminar puesto
     function deletePosition() {
         if (deleteModal.position) {
-            router.delete(`/positions/${deleteModal.position.id}`, {
+            router.delete(`/positions/delete/${deleteModal.position.id}`, {
                 onSuccess: () => {
                     deleteModal = { show: false, position: null };
                 },

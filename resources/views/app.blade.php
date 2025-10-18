@@ -17,6 +17,7 @@
 
 <body>
     @inertia
+    @include('sweetalert2::index')
 </body>
 
 </html>
