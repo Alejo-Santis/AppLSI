@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Employee;
 use App\Models\Department;
 use App\Models\Position;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -150,28 +151,40 @@ class EmployeeController extends Controller
             'department',
             'position',
             'user',
-            'documents' => function ($query) {
-                $query->orderBy('created_at', 'desc');
-            },
+            'documents' => fn($q) => $q->orderBy('created_at', 'desc'),
             'emergencyContacts',
-            'salaryHistories' => function ($query) {
-                $query->orderBy('change_date', 'desc');
-            },
+            'salaryHistories' => fn($q) => $q->orderBy('change_date', 'desc'),
             'projectAssignments.project',
         ]);
 
-        // Estadísticas
-        $stats = [
-            'years_of_service' => $employee->hire_date->diffInYears(now()),
-            'months_in_company' => $employee->hire_date->diffInMonths(now()),
-            'total_documents' => $employee->documents->count(),
-            'active_projects' => $employee->projectAssignments->where('is_active', true)->count(),
-            'salary_changes' => $employee->salaryHistories->count(),
-        ];
+        // Evitar errores si hire_date es nulo
+        if (!$employee->hire_date) {
+            $stats = [
+                'years_of_service'  => 0,
+                'months_in_company' => 0,
+                'total_documents'   => $employee->documents->count(),
+                'active_projects'   => $employee->projectAssignments->where('is_active', true)->count(),
+                'salary_changes'    => $employee->salaryHistories->count(),
+            ];
+        } else {
+            $hireDate = Carbon::parse($employee->hire_date)->startOfDay();
+            $now = now()->startOfDay();
+
+            // Usamos diff() para obtener años y meses exactos, no fraccionados
+            $diff = $hireDate->diff($now);
+
+            $stats = [
+                'years_of_service'  => (int) $diff->y,
+                'months_in_company' => (int) ($diff->y * 12 + $diff->m),
+                'total_documents'   => $employee->documents->count(),
+                'active_projects'   => $employee->projectAssignments->where('is_active', true)->count(),
+                'salary_changes'    => $employee->salaryHistories->count(),
+            ];
+        }
 
         return Inertia::render('App/Employees/Show', [
             'employee' => $employee,
-            'stats' => $stats,
+            'stats'    => $stats,
         ]);
     }
 
