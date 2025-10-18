@@ -135,7 +135,7 @@ class EmployeeController extends Controller
             Swal::error([
                 'title' => 'Error al Crear!',
                 'text' => 'No es posible crear el empleado' . $e->getMessage(),
-                'icon' => 'success',
+                'icon' => 'error',
             ]);
 
             return back()->withInput();

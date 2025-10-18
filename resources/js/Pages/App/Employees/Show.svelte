@@ -1,6 +1,7 @@
 <script>
     import AdminLayout from "@layouts/AdminLayout.svelte";
     import { Link } from "@inertiajs/svelte";
+    import DocumentsTab from "@components/DocumentsTab.svelte";
 
     let { employee, stats } = $props();
 
@@ -436,70 +437,7 @@
 
                     <!-- TAB: Documentos -->
                     {#if activeTab === "documents"}
-                        <div
-                            class="d-flex justify-content-between align-items-center mb-3"
-                        >
-                            <h5 class="mb-0">Documentos del Empleado</h5>
-                            <button class="btn btn-primary btn-sm">
-                                <i class="bi bi-plus"></i> Subir Documento
-                            </button>
-                        </div>
-
-                        {#if employee.documents && employee.documents.length > 0}
-                            <div class="table-responsive">
-                                <table class="table table-hover">
-                                    <thead>
-                                        <tr>
-                                            <th>Título</th>
-                                            <th>Tipo</th>
-                                            <th>Fecha</th>
-                                            <th>Acciones</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {#each employee.documents as document}
-                                            <tr>
-                                                <td>{document.title}</td>
-                                                <td>
-                                                    <span
-                                                        class="badge bg-light-info text-info"
-                                                    >
-                                                        {document.document_type}
-                                                    </span>
-                                                </td>
-                                                <td>
-                                                    {new Date(
-                                                        document.upload_date,
-                                                    ).toLocaleDateString(
-                                                        "es-CO",
-                                                    )}
-                                                </td>
-                                                <td>
-                                                    <button
-                                                        class="btn btn-sm btn-light-primary"
-                                                        aria-label="download"
-                                                    >
-                                                        <i
-                                                            class="bi bi-download"
-                                                        ></i>
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                        {/each}
-                                    </tbody>
-                                </table>
-                            </div>
-                        {:else}
-                            <div class="text-center py-5">
-                                <i class="bi bi-folder-x fs-1 text-muted"></i>
-                                <p class="text-muted mt-2">
-                                    No hay documentos registrados
-                                </p>
-                                <button class="btn btn-primary btn-sm">
-                                    <i class="bi bi-plus"></i> Subir Primer Documento
-                                </button>
-                            </div>
-                        {/if}
+                        <DocumentsTab {employee} />
                     {/if}
 
                     <!-- TAB: Contactos de Emergencia -->

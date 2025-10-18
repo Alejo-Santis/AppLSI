@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DepartmentController;
+use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\PositionController;
 use Inertia\Inertia;
@@ -66,18 +67,17 @@ Route::middleware('auth')->group(function () {
         Route::delete('/delete/{employee}', [EmployeeController::class, 'destroyEmployee'])->name('employees.delete');
         Route::delete('/{employee}/photo', [EmployeeController::class, 'deletePhoto'])
             ->name('employees.delete-photo');
-    });
 
-    /*
-    |--------------------------------------------------------------------------
-    | Rutas UI Components
-    |--------------------------------------------------------------------------
-    */
-    Route::prefix('ui')->name('ui.')->group(function () {
-        Route::get('/buttons', fn() => Inertia::render('UI/Buttons'))->name('buttons');
-    });
+        Route::get('/document-types', [DocumentController::class, 'getTypes'])->name('document.types');
 
-    /*
+        Route::prefix('/{employee}/documents')->name('employees.documents.')->group(function () {
+            Route::get('/', [DocumentController::class, 'documents'])->name('documents.all');
+            Route::post('/store', [DocumentController::class, 'storeDocument'])->name('documents.store');
+            Route::get('/{document}/download', [DocumentController::class, 'downloadDocument'])->name('documents.download');
+            Route::get('/{document}/preview', [DocumentController::class, 'previewDocument'])->name('documents.preview');
+            Route::delete('/{document}/delete', [DocumentController::class, 'destroyDocument'])->name('documents.destroy');
+        });
+    });
 
     /*
     |--------------------------------------------------------------------------
