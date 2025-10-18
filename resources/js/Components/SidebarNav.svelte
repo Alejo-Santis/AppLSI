@@ -14,7 +14,7 @@
             ],
         },
         {
-            section: "Departamentos",
+            section: "",
             items: [
                 {
                     label: "Departamentos",
@@ -24,12 +24,22 @@
             ],
         },
         {
-            section: "Puestos",
+            section: "",
             items: [
                 {
                     label: "Puestos",
                     url: "/positions",
                     icon: "solar:user-id-bold",
+                },
+            ],
+        },
+        {
+            section: "",
+            items: [
+                {
+                    label: "Empleados",
+                    url: "/employees",
+                    icon: "solar:shield-user-bold",
                 },
             ],
         },
@@ -45,13 +55,15 @@
 <nav class="sidebar-nav scroll-sidebar" data-simplebar>
     <ul id="sidebarnav">
         {#each menuItems as section}
-            <li class="nav-small-cap">
-                <iconify-icon
-                    icon="solar:menu-dots-linear"
-                    class="nav-small-cap-icon fs-6"
-                />
-                <span class="hide-menu">{section.section}</span>
-            </li>
+            {#if section.section}
+                <li class="nav-small-cap">
+                    <iconify-icon
+                        icon="solar:menu-dots-linear"
+                        class="nav-small-cap-icon fs-6"
+                    />
+                    <span class="hide-menu">{section.section}</span>
+                </li>
+            {/if}
 
             {#each section.items as item}
                 <li class="sidebar-item {isActive(item.url) ? 'selected' : ''}">

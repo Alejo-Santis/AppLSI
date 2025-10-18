@@ -45,6 +45,11 @@ class Employee extends Model
     }
 
     /**
+     * Appends attributes
+     */
+    protected $appends = ['full_name', 'years_of_service'];
+
+    /**
      * Relación: Departamento
      */
     public function department()
@@ -147,6 +152,30 @@ class Employee extends Model
     }
 
     /**
+     * Scope: Por departamento
+     */
+    public function scopeByDepartment($query, $departmentId)
+    {
+        return $query->where('department_id', $departmentId);
+    }
+
+    /**
+     * Scope: Por puesto
+     */
+    public function scopeByPosition($query, $positionId)
+    {
+        return $query->where('position_id', $positionId);
+    }
+
+    /**
+     * Scope: Por estado
+     */
+    public function scopeByStatus($query, $status)
+    {
+        return $query->where('status', $status);
+    }
+
+    /**
      * Accessor: Nombre completo
      */
     public function getFullNameAttribute()
@@ -160,5 +189,44 @@ class Employee extends Model
     public function getYearsOfServiceAttribute()
     {
         return $this->hire_date->diffInYears(now());
+    }
+
+    /**
+     * Accessor: Edad
+     */
+    public function getAgeAttribute()
+    {
+        return $this->birth_date ? $this->birth_date->diffInYears(now()) : null;
+    }
+
+    /**
+     * Método: Verificar si se puede eliminar
+     */
+    public function canBeDeleted(): bool
+    {
+        return !$this->projectAssignments()->where('is_active', true)->exists()
+            && !$this->managedDepartments()->exists()
+            && !$this->managedProjects()->exists();
+    }
+
+    /**
+     * Método: Obtener proyectos activos
+     */
+    public function getActiveProjects()
+    {
+        return $this->projectAssignments()
+            ->where('is_active', true)
+            ->with('project')
+            ->get();
+    }
+
+    /**
+     * Método: Calcular porcentaje de asignación total
+     */
+    public function getTotalAllocationPercentage()
+    {
+        return $this->projectAssignments()
+            ->where('is_active', true)
+            ->sum('allocation_percentage');
     }
 }

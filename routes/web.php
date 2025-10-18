@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\DepartmentController;
+use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\PositionController;
 use Inertia\Inertia;
 use Symfony\Component\Routing\Attribute\DeprecatedAlias;
@@ -60,6 +61,18 @@ Route::middleware('auth')->group(function () {
         Route::get('/edit/{id}', [PositionController::class, 'editPosition'])->name('positions.edit');
         Route::put('/update/{id}', [PositionController::class, 'updatePosition'])->name('positions.update');
         Route::delete('/delete/{id}', [PositionController::class, 'destroyPosition'])->name('positions.delete');
+    });
+
+    Route::prefix('employees')->group(function () {
+        Route::get('/', [EmployeeController::class, 'employees'])->name('employees.all');
+        Route::get('/create', [EmployeeController::class, 'createEmployee'])->name('employees.create');
+        Route::post('/store', [EmployeeController::class, 'storeEmployee'])->name('employees.store');
+        Route::get('/show/{employee}', [EmployeeController::class, 'showEmployeeDetails'])->name('employees.show');
+        Route::get('/edit/{employee}', [EmployeeController::class, 'editEmployee'])->name('employees.edit');
+        Route::put('/update/{employee}', [EmployeeController::class, 'updateEmployee'])->name('employees.update');
+        Route::delete('/delete/{employee}', [EmployeeController::class, 'destroyEmployee'])->name('employees.delete');
+        Route::delete('/{employee}/photo', [EmployeeController::class, 'deletePhoto'])
+            ->name('employees.delete-photo');
     });
 
     /*
