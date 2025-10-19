@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\Auth\PasswordResetController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\DocumentController;
@@ -29,6 +30,21 @@ Route::middleware('guest')->group(function () {
     // Procesar formularios
     Route::post('/login', [AuthController::class, 'login']);
     Route::post('/register', [AuthController::class, 'register']);
+
+    Route::get('/forgot-password', [PasswordResetController::class, 'showForgotForm'])
+        ->name('password.request');
+
+    // Enviar el enlace de recuperación
+    Route::post('/forgot-password', [PasswordResetController::class, 'sendResetLink'])
+        ->name('password.email');
+
+    // Mostrar formulario de restablecimiento
+    Route::get('/reset-password/{token}', [PasswordResetController::class, 'showResetForm'])
+        ->name('password.reset');
+
+    // Procesar el restablecimiento
+    Route::post('/reset-password', [PasswordResetController::class, 'reset'])
+        ->name('password.update');
 });
 
 /*
@@ -112,13 +128,13 @@ Route::middleware('auth')->group(function () {
     });
 
     Route::prefix('projects')->name('projects.')->group(function () {
-        Route::get('/', [ProjectController::class, 'projects'])->name('projects.all');
-        Route::get('/create', [ProjectController::class, 'createProject'])->name('projects.create');
-        Route::post('/store', [ProjectController::class, 'storeProject'])->name('projects.store');
-        Route::get('/show/{project}', [ProjectController::class, 'showProject'])->name('projects.show');
-        Route::get('/edit/{project}', [ProjectController::class, 'editProject'])->name('projects.edit');
-        Route::put('/update/{project}', [ProjectController::class, 'updateProject'])->name('projects.update');
-        Route::delete('/delete/{project}', [ProjectController::class, 'destroyProject'])->name('projects.delete');
+        Route::get('/', [ProjectController::class, 'projects'])->name('all');
+        Route::get('/create', [ProjectController::class, 'createProject'])->name('create');
+        Route::post('/store', [ProjectController::class, 'storeProject'])->name('store');
+        Route::get('/show/{project}', [ProjectController::class, 'showProject'])->name('show');
+        Route::get('/edit/{project}', [ProjectController::class, 'editProject'])->name('edit');
+        Route::put('/update/{project}', [ProjectController::class, 'updateProject'])->name('update');
+        Route::delete('/delete/{project}', [ProjectController::class, 'destroyProject'])->name('delete');
 
         // Asignaciones
         Route::post('/{project}/assign', [ProjectController::class, 'assignEmployee'])->name('projects.assign');

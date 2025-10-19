@@ -194,7 +194,21 @@ class EmployeeController extends Controller
     public function editEmployee(Employee $employee)
     {
         return Inertia::render('App/Employees/Edit', [
-            'employee' => $employee,
+            'employee' => [
+                'first_name' => $employee->first_name,
+                'last_name' => $employee->last_name,
+                'email' => $employee->email,
+                'phone' => $employee->phone,
+                'hire_date' => $employee->hire_date ? date('Y-m-d', strtotime($employee->hire_date)) : null,
+                'salary' => $employee->salary,
+                'status' => $employee->status,
+                'birth_date' => $employee->birth_date ? date('Y-m-d', strtotime($employee->birth_date)) : null,
+                'address' => $employee->address,
+                'photo_url' => $employee->photo_url,
+                'position_id' => $employee->position_id,
+                'department_id' => $employee->department_ids,
+                $employee
+            ],
             'departments' => Department::where('is_active', true)
                 ->select('id', 'name', 'code')
                 ->orderBy('name')

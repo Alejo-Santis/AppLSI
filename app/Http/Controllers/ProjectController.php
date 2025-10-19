@@ -77,7 +77,7 @@ class ProjectController extends Controller
                 'icon' => 'success',
             ]);
 
-            return redirect()->to_route('projects.all');
+            return redirect()->route('projects.all');
         } catch (Exception $e) {
             Swal::error([
                 'title' => 'Error',
@@ -126,18 +126,45 @@ class ProjectController extends Controller
 
     public function editProject(Project $project)
     {
+        $project = Project::with(['projectManager', 'projectAssignments'])
+            ->findOrFail($project->id);
+
+        $employees = Employee::where('status', 'active')
+            ->select('id', 'first_name', 'last_name', 'email')
+            ->get()
+            ->map(function ($employee) {
+                return [
+                    'id' => $employee->id,
+                    'name' => "{$employee->first_name} {$employee->last_name}",
+                    'email' => $employee->email,
+                ];
+            });
+
+        $statuses = [
+            'planning' => 'Planificación',
+            'active' => 'Activo',
+            'on_hold' => 'En Espera',
+            'completed' => 'Completado',
+            'cancelled' => 'Cancelado',
+        ];
+
         return Inertia::render('App/Projects/Edit', [
-            'project' => $project,
-            'employees' => Employee::where('status', 'active')
-                ->select('id', 'first_name', 'last_name', 'email')
-                ->orderBy('first_name')
-                ->get()
-                ->map(fn($e) => [
-                    'id' => $e->id,
-                    'name' => $e->first_name . ' ' . $e->last_name,
-                    'email' => $e->email,
-                ]),
-            'statuses' => Project::getStatuses(),
+            'project' => [
+                'id' => $project->id,
+                'name' => $project->name,
+                'code' => $project->code,
+                'description' => $project->description,
+                'start_date' => $project->start_date ? date('Y-m-d', strtotime($project->start_date)) : null,
+                'end_date' => $project->end_date ? date('Y-m-d', strtotime($project->end_date)) : null,
+                'status' => $project->status,
+                'budget' => $project->budget,
+                'project_manager_id' => $project->project_manager_id,
+                'created_at' => $project->created_at,
+                'updated_at' => $project->updated_at,
+                'project_assignments' => $project->project_assignments,
+            ],
+            'employees' => $employees,
+            'statuses' => $statuses,
         ]);
     }
 
@@ -163,7 +190,7 @@ class ProjectController extends Controller
                 'icon' => 'success',
             ]);
 
-            return redirect()->to_route('projects.all');
+            return redirect()->route('projects.all');
         } catch (Exception $e) {
             Swal::error([
                 'title' => 'Error',
@@ -194,7 +221,7 @@ class ProjectController extends Controller
                 'icon' => 'success',
             ]);
 
-            return redirect()->to_route('projects.all');
+            return redirect()->route('projects.all');
         } catch (Exception $e) {
             Swal::error([
                 'title' => 'Error',

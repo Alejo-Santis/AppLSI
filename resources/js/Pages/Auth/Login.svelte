@@ -28,34 +28,40 @@
             >
                 <img src="/assets/images/logos/seodashlogo.png" alt="Logo" />
             </a>
-            <p class="text-center">Sign in in this application</p>
+            <p class="text-center">Inicia sesión en la aplicación</p>
 
             <form onsubmit={submit}>
                 <div class="mb-3">
-                    <label for="email" class="form-label">Username</label>
+                    <label for="email" class="form-label">
+                        Correo Electrónico
+                    </label>
                     <input
                         type="email"
-                        class="form-control"
+                        class="form-control {errors.email ? 'is-invalid' : ''}"
                         id="email"
                         bind:value={$form.email}
+                        placeholder="tu@email.com"
                         required
                     />
                     {#if errors.email}
-                        <div class="text-danger mt-1 small">{errors.email}</div>
+                        <div class="invalid-feedback">{errors.email}</div>
                     {/if}
                 </div>
 
-                <div class="mb-4">
-                    <label for="password" class="form-label">Password</label>
+                <div class="mb-3">
+                    <label for="password" class="form-label">Contraseña</label>
                     <input
                         type="password"
-                        class="form-control"
+                        class="form-control {errors.password
+                            ? 'is-invalid'
+                            : ''}"
                         id="password"
                         bind:value={$form.password}
+                        placeholder="••••••••"
                         required
                     />
                     {#if errors.password}
-                        <div class="text-danger mt-1 small">
+                        <div class="invalid-feedback">
                             {errors.password}
                         </div>
                     {/if}
@@ -75,12 +81,12 @@
                             class="form-check-label text-dark"
                             for="remember"
                         >
-                            Remeber this Device
+                            Recordar sesión
                         </label>
                     </div>
-                    <a href="/forgot-password" class="text-primary fw-bold">
-                        Forgot Password ?
-                    </a>
+                    <Link href="/forgot-password" class="text-primary fw-bold">
+                        ¿Olvidaste tu contraseña?
+                    </Link>
                 </div>
 
                 <button
@@ -88,13 +94,19 @@
                     class="btn btn-primary w-100 py-8 fs-4 mb-4"
                     disabled={$form.processing}
                 >
-                    {$form.processing ? "Signing in..." : "Sign In"}
+                    {#if $form.processing}
+                        <span class="spinner-border spinner-border-sm me-2"
+                        ></span>
+                        Iniciando Sesión...
+                    {:else}
+                        Iniciar Sesión
+                    {/if}
                 </button>
 
                 <div class="d-flex align-items-center justify-content-center">
-                    <p class="fs-4 mb-0 fw-bold">New to SeoDash?</p>
+                    <p class="fs-4 mb-0 fw-bold">¿Nuevo en AppLSI?</p>
                     <Link href="/register" class="text-primary fw-bold ms-2">
-                        Create an account
+                        Crea una cuenta
                     </Link>
                 </div>
             </form>

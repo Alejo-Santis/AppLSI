@@ -97,7 +97,7 @@
                                 class="d-flex align-items-center gap-2 dropdown-item"
                             >
                                 <i class="bi bi-person fs-6 text-primary"></i>
-                                <p class="mb-0 fs-6">Mi Perfil</p>
+                                <p class="mb-0">Mi Perfil</p>
                             </a>
 
                             <a
@@ -105,7 +105,7 @@
                                 class="d-flex align-items-center gap-2 dropdown-item"
                             >
                                 <i class="bi bi-gear fs-6 text-secondary"></i>
-                                <p class="mb-0 fs-6">Configuración</p>
+                                <p class="mb-0">Configuración</p>
                             </a>
 
                             <Link
