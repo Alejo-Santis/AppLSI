@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\ProjectsExport;
+use App\Imports\ProjectsImport;
 use App\Models\Project;
 use App\Models\Employee;
 use App\Models\ProjectAssignment;
@@ -9,6 +11,7 @@ use App\Models\ProjectAssignments;
 use Exception;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Maatwebsite\Excel\Facades\Excel;
 use SweetAlert2\Laravel\Swal;
 
 class ProjectController extends Controller
@@ -310,5 +313,31 @@ class ProjectController extends Controller
             ]);
             return back();
         }
+    }
+
+    public function export()
+    {
+        Swal::success([
+            'title' => 'Exportación completada',
+            'text' => 'El archivo de proyectos se generó correctamente.',
+            'icon' => 'success'
+        ]);
+        return Excel::download(new ProjectsExport, 'projects.xlsx');
+    }
+
+    public function import(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|mimes:xlsx,xls,csv'
+        ]);
+
+        Excel::import(new ProjectsImport, $request->file('file'));
+
+        Swal::success([
+            'title' => 'Importación exitosa',
+            'text' => 'Los proyectos se importaron correctamente.',
+            'icon' => 'success'
+        ]);
+        return back();
     }
 }

@@ -2,11 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\PositionsExport;
+use App\Imports\PositionsImport;
 use App\Models\Position;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use SweetAlert2\Laravel\Swal;
 use Exception;
+use Maatwebsite\Excel\Facades\Excel;
 
 class PositionController extends Controller
 {
@@ -226,6 +229,39 @@ class PositionController extends Controller
             'icon' => 'success',
         ]);
 
+        return redirect()->route('positions.all');
+    }
+
+    /**
+     * Exportar positions.
+     */
+    public function export()
+    {
+        Swal::success([
+            'title' => 'Exportación exitosa',
+            'text' => 'Los puestos se han exportado correctamente.',
+            'success' => 'success'
+        ]);
+
+        return Excel::download(new PositionsExport, 'positions.xlsx');
+    }
+
+    /**
+     * Importar positions.
+     */
+    public function import(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|mimes:xlsx,csv,xls',
+        ]);
+
+        Excel::import(new PositionsImport, $request->file('file'));
+
+        Swal::success([
+            'title' => 'Importación completada',
+            'text' => 'Los puestos fueron importados correctamente.',
+            'icon' => 'success'
+        ]);
         return redirect()->route('positions.all');
     }
 }

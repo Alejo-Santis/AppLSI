@@ -107,13 +107,29 @@
                         Administra los proyectos de la organización
                     </p>
                 </div>
-                <Link
-                    href="/projects/create"
-                    class="btn btn-primary d-flex align-items-center gap-2"
-                >
-                    <i class="bi bi-plus-lg"></i>
-                    Nuevo Proyecto
-                </Link>
+                <div class="d-flex gap-2">
+                    <Link
+                        href="/projects/create"
+                        class="btn btn-primary d-flex align-items-center gap-2"
+                    >
+                        <i class="bi bi-plus-lg"></i>
+                        Nuevo Proyecto
+                    </Link>
+                    <a
+                        href="/projects/export"
+                        class="btn btn-outline-success d-flex align-items-center gap-2"
+                    >
+                        <i class="bi bi-download"></i> Exportar
+                    </a>
+                    <button
+                        type="button"
+                        class="btn btn-primary d-flex align-items-center gap-2"
+                        data-bs-toggle="modal"
+                        data-bs-target="#importProjectsModal"
+                    >
+                        <i class="bi bi-upload"></i> Importar
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -422,6 +438,97 @@
             </div>
         </div>
     {/if}
+
+    <!-- Modal -->
+    <div
+        class="modal fade"
+        id="importProjectsModal"
+        tabindex="-1"
+        aria-labelledby="importProjectsModalLabel"
+        aria-hidden="true"
+    >
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="bi bi-upload me-2"></i>Importar Proyectos
+                    </h5>
+                    <button
+                        type="button"
+                        class="btn-close btn-close-white"
+                        data-bs-dismiss="modal"
+                        aria-label="close"
+                    ></button>
+                </div>
+                <div class="modal-body">
+                    <form
+                        id="importProjectsForm"
+                        action="/projects/import"
+                        method="POST"
+                        enctype="multipart/form-data"
+                    >
+                        <div
+                            id="dropZoneProjects"
+                            class="border border-2 border-dashed rounded p-4 text-center bg-light"
+                            style="cursor:pointer"
+                        >
+                            <i class="bi bi-cloud-arrow-up fs-1 text-primary"
+                            ></i>
+                            <p class="mt-2 mb-1">Arrastra tu archivo aquí</p>
+                            <small class="text-muted"
+                                >o haz clic para seleccionarlo</small
+                            >
+                            <input
+                                type="file"
+                                id="fileInputProjects"
+                                name="file"
+                                class="d-none"
+                                accept=".csv,.xlsx,.xls"
+                            />
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button
+                        type="button"
+                        class="btn btn-light"
+                        data-bs-dismiss="modal"
+                    >
+                        <i class="bi bi-x-circle"></i>
+                        Cancelar
+                    </button>
+                    <button
+                        type="submit"
+                        form="importProjectsForm"
+                        class="btn btn-success"
+                    >
+                        <i class="bi bi-check"></i>
+                        Importar</button
+                    >
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const dropZone = document.getElementById("dropZoneProjects");
+            const fileInput = document.getElementById("fileInputProjects");
+            dropZone.addEventListener("click", () => fileInput.click());
+            dropZone.addEventListener("dragover", (e) => {
+                e.preventDefault();
+                dropZone.classList.add("border-primary", "bg-white");
+            });
+            dropZone.addEventListener("dragleave", () =>
+                dropZone.classList.remove("border-primary", "bg-white"),
+            );
+            dropZone.addEventListener("drop", (e) => {
+                e.preventDefault();
+                dropZone.classList.remove("border-primary", "bg-white");
+                fileInput.files = e.dataTransfer.files;
+            });
+        });
+    </script>
 </AdminLayout>
 
 <style>

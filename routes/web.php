@@ -74,6 +74,9 @@ Route::middleware('auth')->group(function () {
         Route::get('/edit/{id}', [DepartmentController::class, 'editDepartment'])->name('departments.edit');
         Route::put('/update/{id}', [DepartmentController::class, 'updateDeparment'])->name('departments.update');
         Route::delete('/delete/{id}', [DepartmentController::class, 'destroyDepartment'])->name('departments.delete');
+
+        Route::get('/export', [DepartmentController::class, 'exportDepartments'])->name('departments.export');
+        Route::post('/import', [DepartmentController::class, 'importDepartments'])->name('departments.import');
     });
 
     Route::prefix('positions')->group(function () {
@@ -84,6 +87,9 @@ Route::middleware('auth')->group(function () {
         Route::get('/edit/{id}', [PositionController::class, 'editPosition'])->name('positions.edit');
         Route::put('/update/{id}', [PositionController::class, 'updatePosition'])->name('positions.update');
         Route::delete('/delete/{id}', [PositionController::class, 'destroyPosition'])->name('positions.delete');
+
+        Route::post('/import', [PositionController::class, 'import'])->name('positions.import');
+        Route::get('/export', [PositionController::class, 'export'])->name('positions.export');
     });
 
     Route::prefix('employees')->group(function () {
@@ -96,6 +102,9 @@ Route::middleware('auth')->group(function () {
         Route::delete('/delete/{employee}', [EmployeeController::class, 'destroyEmployee'])->name('employees.delete');
         Route::delete('/{employee}/photo', [EmployeeController::class, 'deletePhoto'])
             ->name('employees.delete-photo');
+
+        Route::get('/export', [EmployeeController::class, 'exportEmployees'])->name('employees.export');
+        Route::post('/import', [EmployeeController::class, 'importEmployees'])->name('employees.import');
 
         Route::get('/document-types', [DocumentController::class, 'getTypes'])->name('document.types');
 
@@ -139,6 +148,9 @@ Route::middleware('auth')->group(function () {
         // Asignaciones
         Route::post('/{project}/assign', [ProjectController::class, 'assignEmployee'])->name('projects.assign');
         Route::delete('/{project}/assignments/{assignment}/remove', [ProjectController::class, 'removeEmployee'])->name('projects.remove');
+
+        Route::get('/export', [ProjectController::class, 'export'])->name('projects.export');
+        Route::post('/import', [ProjectController::class, 'import'])->name('projects.import');
     });
 
     /*

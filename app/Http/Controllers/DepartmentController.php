@@ -2,12 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\DepartmentsExport;
+use App\Imports\DepartmentsImport;
 use App\Models\Department;
 use App\Models\Employee;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Inertia\Inertia;
+use Maatwebsite\Excel\Facades\Excel;
 use SweetAlert2\Laravel\Swal;
 
 class DepartmentController extends Controller
@@ -283,5 +286,40 @@ class DepartmentController extends Controller
             ->get();
 
         return response()->json($employees);
+    }
+
+    public function exportDepartments()
+    {
+        Swal::success([
+            'title' => 'Exportación exitosa',
+            'text' => 'Los departamentos se han exportado correctamente.',
+            'success' => 'success'
+        ]);
+
+        return Excel::download(new DepartmentsExport, 'departamentos.xlsx');
+    }
+
+    public function importDepartments(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|mimes:xlsx,xls',
+        ]);
+
+        try {
+            Excel::import(new DepartmentsImport, $request->file('file'));
+
+            Swal::success([
+                'title' => 'Importación exitosa',
+                'text' => 'Los departamentos se han importado correctamente.',
+                'icon' => 'success'
+            ]);
+        } catch (\Exception $e) {
+            Swal::error([
+                'title' => 'Error en la importación',
+                'text' => 'No se pudo importar el archivo. ' . $e->getMessage(),
+            ]);
+        }
+
+        return redirect()->route('departments.all');
     }
 }

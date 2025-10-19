@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\EmployeesExport;
+use App\Imports\EmployeesImport;
 use App\Models\Employee;
 use App\Models\Department;
 use App\Models\Position;
@@ -10,6 +12,7 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
+use Maatwebsite\Excel\Facades\Excel;
 use SweetAlert2\Laravel\Swal;
 
 class EmployeeController extends Controller
@@ -336,5 +339,32 @@ class EmployeeController extends Controller
         ]);
 
         return back();
+    }
+
+    public function exportEmployees()
+    {
+        Swal::success([
+            'title' => 'Exportación exitosa',
+            'text' => 'Los empleados se han exportado correctamente.',
+            'success' => 'success'
+        ]);
+
+        return Excel::download(new EmployeesExport, 'employees.xlsx');
+    }
+
+    public function importEmployees(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|mimes:xlsx,csv,xls'
+        ]);
+
+        Excel::import(new EmployeesImport, $request->file('file'));
+
+        Swal::success([
+            'title' => 'Importación exitosa',
+            'text' => 'Los empleados se han importado correctamente.',
+            'success' => 'success'
+        ]);
+        return redirect()->route('employees.all');
     }
 }
