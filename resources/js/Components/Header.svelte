@@ -2,9 +2,13 @@
     import { Link } from "@inertiajs/svelte";
     import { onMount } from "svelte";
 
-    let { onToggleSidebar = () => {} } = $props();
+    let { onToggleSidebar = () => {}, user = {} } = $props();
 
-    // Inicializar tooltips de Bootstrap
+    // Imagen de avatar: usa la del usuario o una por defecto
+    let avatarUrl = user.user.avatar
+        ? `/storage/${user.user.avatar}`
+        : "https://cdn-icons-png.flaticon.com/512/847/847969.png";
+
     onMount(() => {
         if (window.bootstrap) {
             const tooltipTriggerList = document.querySelectorAll(
@@ -23,9 +27,9 @@
             <div
                 class="d-flex align-items-center justify-content-between w-100"
             >
-                <!-- Lado izquierdo: Toggle y Notificaciones -->
+                <!-- Lado izquierdo -->
                 <div class="d-flex align-items-center gap-3">
-                    <!-- Toggle para móvil -->
+                    <!-- Toggle -->
                     <button
                         class="nav-link sidebartoggler nav-icon-hover d-block d-xl-none border-0 bg-transparent"
                         id="headerCollapse"
@@ -49,7 +53,7 @@
                     </a>
                 </div>
 
-                <!-- Lado derecho: User Dropdown -->
+                <!-- Lado derecho -->
                 <div class="d-flex align-items-center">
                     <div class="dropdown">
                         <a
@@ -60,48 +64,58 @@
                             aria-expanded="false"
                         >
                             <img
-                                src="/assets/images/profile/user-1.jpg"
+                                src={avatarUrl}
                                 alt="User profile"
                                 width="35"
                                 height="35"
-                                class="rounded-circle"
+                                class="rounded-circle border border-primary-subtle"
+                                style="object-fit: cover;"
                             />
                         </a>
+
                         <div
-                            class="dropdown-menu dropdown-menu-end dropdown-menu-animate-up"
+                            class="dropdown-menu dropdown-menu-end dropdown-menu-animate-up p-2"
                             aria-labelledby="drop2"
                         >
-                            <div class="message-body">
-                                <a
-                                    href="#!"
-                                    class="d-flex align-items-center gap-2 dropdown-item"
+                            <div class="text-center mb-2">
+                                <img
+                                    src={avatarUrl}
+                                    alt="User avatar"
+                                    width="60"
+                                    height="60"
+                                    class="rounded-circle border border-2 border-primary-subtle mb-2"
+                                    style="object-fit: cover;"
+                                />
+                                <p class="fw-semibold mb-0">{user.name}</p>
+                                <small class="text-muted text-capitalize"
+                                    >{user.role}</small
                                 >
-                                    <i class="ti ti-user fs-6"></i>
-                                    <p class="mb-0 fs-3">My Profile</p>
-                                </a>
-                                <a
-                                    href="#!"
-                                    class="d-flex align-items-center gap-2 dropdown-item"
-                                >
-                                    <i class="ti ti-mail fs-6"></i>
-                                    <p class="mb-0 fs-3">My Account</p>
-                                </a>
-                                <a
-                                    href="#!"
-                                    class="d-flex align-items-center gap-2 dropdown-item"
-                                >
-                                    <i class="ti ti-list-check fs-6"></i>
-                                    <p class="mb-0 fs-3">My Task</p>
-                                </a>
-                                <Link
-                                    href="/logout"
-                                    method="post"
-                                    as="button"
-                                    class="btn btn-outline-primary mx-3 mt-2 d-block w-auto"
-                                >
-                                    Logout
-                                </Link>
                             </div>
+
+                            <a
+                                href="/user/profile"
+                                class="d-flex align-items-center gap-2 dropdown-item"
+                            >
+                                <i class="bi bi-person fs-6 text-primary"></i>
+                                <p class="mb-0 fs-6">Mi Perfil</p>
+                            </a>
+
+                            <a
+                                href="/user/account"
+                                class="d-flex align-items-center gap-2 dropdown-item"
+                            >
+                                <i class="bi bi-gear fs-6 text-secondary"></i>
+                                <p class="mb-0 fs-6">Configuración</p>
+                            </a>
+
+                            <Link
+                                href="/logout"
+                                method="post"
+                                as="button"
+                                class="btn btn-outline-danger w-100 mt-1"
+                            >
+                                <i class="bi bi-box-arrow-right"></i> Cerrar sesión
+                            </Link>
                         </div>
                     </div>
                 </div>
@@ -111,7 +125,6 @@
 </header>
 
 <style>
-    /* Asegurar que el icono de notificación sea visible */
     .notification {
         position: absolute;
         top: 8px;
@@ -120,7 +133,6 @@
         height: 8px;
     }
 
-    /* Asegurar visibilidad del botón toggle */
     .sidebartoggler {
         cursor: pointer;
         padding: 0.5rem;
@@ -129,5 +141,14 @@
     .nav-icon-hover:hover {
         background-color: rgba(0, 0, 0, 0.05);
         border-radius: 8px;
+    }
+
+    .dropdown-menu {
+        min-width: 220px;
+    }
+
+    .dropdown-item:hover {
+        background-color: #f8f9fa;
+        border-radius: 6px;
     }
 </style>

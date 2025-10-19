@@ -4,6 +4,7 @@
     import EmergencyContactsTab from "@components/EmergencyContactsTab.svelte";
     import SalaryHistoryTab from "@components/SalaryHistoryTab.svelte";
     import { Link } from "@inertiajs/svelte";
+    import ProjectsTab from "../../../Components/ProjectsTab.svelte";
 
     let { employee, stats } = $props();
 
@@ -460,98 +461,7 @@
 
                     <!-- TAB: Proyectos -->
                     {#if activeTab === "projects"}
-                        <div
-                            class="d-flex justify-content-between align-items-center mb-3"
-                        >
-                            <h5 class="mb-0">Proyectos Asignados</h5>
-                        </div>
-
-                        {#if employee.project_assignments && employee.project_assignments.length > 0}
-                            <div class="table-responsive">
-                                <table class="table table-hover">
-                                    <thead>
-                                        <tr>
-                                            <th>Proyecto</th>
-                                            <th>Rol</th>
-                                            <th>Asignación</th>
-                                            <th>Dedicación</th>
-                                            <th>Estado</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {#each employee.project_assignments as assignment}
-                                            <tr>
-                                                <td>
-                                                    <h6 class="mb-0">
-                                                        {assignment.project
-                                                            .name}
-                                                    </h6>
-                                                    <small class="text-muted">
-                                                        {assignment.project
-                                                            .code}
-                                                    </small>
-                                                </td>
-                                                <td>
-                                                    {assignment.role || "N/A"}
-                                                </td>
-                                                <td>
-                                                    <small>
-                                                        {new Date(
-                                                            assignment.assigned_date,
-                                                        ).toLocaleDateString(
-                                                            "es-CO",
-                                                        )}
-                                                        {#if assignment.end_date}
-                                                            - {new Date(
-                                                                assignment.end_date,
-                                                            ).toLocaleDateString(
-                                                                "es-CO",
-                                                            )}
-                                                        {/if}
-                                                    </small>
-                                                </td>
-                                                <td>
-                                                    <div
-                                                        class="progress"
-                                                        style="height: 20px;"
-                                                    >
-                                                        <div
-                                                            class="progress-bar"
-                                                            role="progressbar"
-                                                            style="width: {assignment.allocation_percentage}%"
-                                                        >
-                                                            {assignment.allocation_percentage}%
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                                <td>
-                                                    {#if assignment.is_active}
-                                                        <span
-                                                            class="badge bg-light-success text-success"
-                                                        >
-                                                            Activo
-                                                        </span>
-                                                    {:else}
-                                                        <span
-                                                            class="badge bg-light-secondary text-secondary"
-                                                        >
-                                                            Finalizado
-                                                        </span>
-                                                    {/if}
-                                                </td>
-                                            </tr>
-                                        {/each}
-                                    </tbody>
-                                </table>
-                            </div>
-                        {:else}
-                            <div class="text-center py-5">
-                                <i class="bi bi-kanban fs-1 text-muted"></i>
-                                <p class="text-muted mt-2">
-                                    No hay proyectos asignados
-                                </p>
-                            </div>
-                        {/if}
+                        <ProjectsTab {employee} />
                     {/if}
                 </div>
             </div>

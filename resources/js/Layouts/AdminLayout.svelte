@@ -3,6 +3,7 @@
     import Sidebar from "@components/Sidebar.svelte";
     import Header from "@components/Header.svelte";
     import SwalAlert from "@components/SwalAlert.svelte"; // ← NUEVO
+    import { page } from "@inertiajs/svelte";
 
     let { children } = $props();
 
@@ -10,6 +11,7 @@
     let isMiniSidebar = $state(false);
     let showSidebar = $state(false);
     let windowWidth = $state(0);
+    let authUser = $page.props.auth;
 
     // Función para determinar si debe ser mini-sidebar
     function updateSidebarType() {
@@ -90,7 +92,7 @@
 
     <!-- Contenido principal -->
     <div class="body-wrapper">
-        <Header onToggleSidebar={toggleSidebar} />
+        <Header onToggleSidebar={toggleSidebar} user={authUser} />
 
         <div class="container-fluid">
             {@render children()}

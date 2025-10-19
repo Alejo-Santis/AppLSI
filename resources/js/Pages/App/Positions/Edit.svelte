@@ -18,8 +18,6 @@
         e.preventDefault();
         $form.put(`/positions/update/${position.id}`);
     }
-
-    console.log({ position });
 </script>
 
 <AdminLayout title="Editar Puesto">

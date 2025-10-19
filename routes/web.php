@@ -8,7 +8,9 @@ use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\EmergencyContactController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\PositionController;
+use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\SalaryHistoryController;
+use App\Http\Controllers\UserController;
 use Inertia\Inertia;
 use Symfony\Component\Routing\Attribute\DeprecatedAlias;
 
@@ -38,6 +40,15 @@ Route::middleware('auth')->group(function () {
 
     // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+    Route::prefix('user')->group(function () {
+        Route::get('/profile', [UserController::class, 'profile'])->name('user.profile');
+        Route::post('/profile/update', [UserController::class, 'updateProfile'])->name('user.profile.update');
+        Route::delete('/profile/avatar', [UserController::class, 'deleteAvatar'])->name('user.avatar.delete');
+        Route::post('/info/update', [UserController::class, 'updateAccountInfo'])->name('user.updateInfo');
+        Route::post('/password/update', [UserController::class, 'updatePassword'])->name('user.updatePassword');
+        Route::get('/account', [UserController::class, 'account'])->name('user.account');
+    });
 
     Route::prefix('departments')->group(function () {
         Route::get('/', [DepartmentController::class, 'departments'])->name('departments.all');
@@ -98,6 +109,20 @@ Route::middleware('auth')->group(function () {
 
         // Ruta para obtener razones de cambio (fuera del grupo {employee})
         Route::get('/salary-change-reasons', [SalaryHistoryController::class, 'getChangeReasons'])->name('salary.reasons');
+    });
+
+    Route::prefix('projects')->name('projects.')->group(function () {
+        Route::get('/', [ProjectController::class, 'projects'])->name('projects.all');
+        Route::get('/create', [ProjectController::class, 'createProject'])->name('projects.create');
+        Route::post('/store', [ProjectController::class, 'storeProject'])->name('projects.store');
+        Route::get('/show/{project}', [ProjectController::class, 'showProject'])->name('projects.show');
+        Route::get('/edit/{project}', [ProjectController::class, 'editProject'])->name('projects.edit');
+        Route::put('/update/{project}', [ProjectController::class, 'updateProject'])->name('projects.update');
+        Route::delete('/delete/{project}', [ProjectController::class, 'destroyProject'])->name('projects.delete');
+
+        // Asignaciones
+        Route::post('/{project}/assign', [ProjectController::class, 'assignEmployee'])->name('projects.assign');
+        Route::delete('/{project}/assignments/{assignment}/remove', [ProjectController::class, 'removeEmployee'])->name('projects.remove');
     });
 
     /*

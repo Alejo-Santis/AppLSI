@@ -43,6 +43,16 @@
                 },
             ],
         },
+        {
+            section: "",
+            items: [
+                {
+                    label: "Proyectos",
+                    url: "/projects",
+                    icon: "solar:code-file-bold",
+                },
+            ],
+        },
     ];
 
     $: currentUrl = $page.url;
