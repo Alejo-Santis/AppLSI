@@ -1,6 +1,7 @@
 <script>
     import AdminLayout from "@layouts/AdminLayout.svelte";
     import { Link, router } from "@inertiajs/svelte";
+    import DownloadTemplateButton from "../../../Components/DownloadTemplateButton.svelte";
 
     let { positions, filters = {}, levels } = $props();
 
@@ -542,6 +543,10 @@
                         <i class="bi bi-check"></i>
                         Importar
                     </button>
+                    <DownloadTemplateButton
+                        file="positions_template.xlsx"
+                        label="Descargar Plantilla"
+                    />
                 </div>
             </div>
         </div>

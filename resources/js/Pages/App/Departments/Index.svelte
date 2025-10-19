@@ -2,6 +2,7 @@
     import { Link, router } from "@inertiajs/svelte";
     import { page } from "@inertiajs/svelte";
     import AdminLayout from "../../../Layouts/AdminLayout.svelte";
+    import DownloadTemplateButton from "@/Components/DownloadTemplateButton.svelte";
 
     let { departments, filters = {} } = $props();
 
@@ -16,6 +17,9 @@
         show: false,
         department: null,
     });
+
+    // Búsqueda con debounce
+    let searchTimeout;
 
     // Aplicar filtros
     function applyFilters() {
@@ -74,8 +78,6 @@
         }
     }
 
-    // Búsqueda con debounce
-    let searchTimeout;
     $effect(() => {
         if (search !== undefined) {
             clearTimeout(searchTimeout);
@@ -116,7 +118,6 @@
                             <i class="bi bi-download"></i>
                             <span>Exportar</span>
                         </a>
-
                         <button
                             type="button"
                             class="btn btn-primary d-flex align-items-center gap-2"
@@ -553,6 +554,10 @@
                         <i class="bi bi-check"></i>
                         Importar
                     </button>
+                    <DownloadTemplateButton
+                        file="departments_template.xlsx"
+                        label="Descargar Plantilla"
+                    />
                 </div>
             </div>
         </div>
