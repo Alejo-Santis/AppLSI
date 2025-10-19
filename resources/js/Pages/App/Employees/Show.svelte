@@ -2,6 +2,7 @@
     import AdminLayout from "@layouts/AdminLayout.svelte";
     import { Link } from "@inertiajs/svelte";
     import DocumentsTab from "@components/DocumentsTab.svelte";
+    import EmergencyContactsTab from "@components/EmergencyContactsTab.svelte";
 
     let { employee, stats } = $props();
 
@@ -300,7 +301,10 @@
                     {#if activeTab === "general"}
                         <div class="row">
                             <div class="col-md-6">
-                                <h5 class="mb-3">Información Personal</h5>
+                                <h5 class="mb-3">
+                                    <i class="bi bi-person-exclamation"></i>
+                                    Información Personal
+                                </h5>
 
                                 <div class="mb-3">
                                     <small class="text-muted d-block"
@@ -356,7 +360,10 @@
                             </div>
 
                             <div class="col-md-6">
-                                <h5 class="mb-3">Información Laboral</h5>
+                                <h5 class="mb-3">
+                                    <i class="bi bi-person-lines-fill"></i>
+                                    Información Laboral
+                                </h5>
 
                                 <div class="mb-3">
                                     <small class="text-muted d-block"
@@ -442,91 +449,7 @@
 
                     <!-- TAB: Contactos de Emergencia -->
                     {#if activeTab === "contacts"}
-                        <div
-                            class="d-flex justify-content-between align-items-center mb-3"
-                        >
-                            <h5 class="mb-0">Contactos de Emergencia</h5>
-                            <button class="btn btn-primary btn-sm">
-                                <i class="bi bi-plus"></i> Agregar Contacto
-                            </button>
-                        </div>
-
-                        {#if employee.emergency_contacts && employee.emergency_contacts.length > 0}
-                            <div class="row">
-                                {#each employee.emergency_contacts as contact}
-                                    <div class="col-md-6 mb-3">
-                                        <div class="card">
-                                            <div class="card-body">
-                                                <div
-                                                    class="d-flex justify-content-between align-items-start"
-                                                >
-                                                    <div>
-                                                        <h6 class="fw-semibold">
-                                                            {contact.name}
-                                                            {#if contact.is_primary}
-                                                                <span
-                                                                    class="badge bg-warning text-dark ms-2"
-                                                                >
-                                                                    Principal
-                                                                </span>
-                                                            {/if}
-                                                        </h6>
-                                                        <p
-                                                            class="text-muted mb-2"
-                                                        >
-                                                            {contact.relationship}
-                                                        </p>
-                                                        <p class="mb-1">
-                                                            <i
-                                                                class="bi bi-telephone"
-                                                            ></i>
-                                                            {contact.phone}
-                                                        </p>
-                                                        {#if contact.email}
-                                                            <p class="mb-0">
-                                                                <i
-                                                                    class="bi bi-envelope"
-                                                                ></i>
-                                                                {contact.email}
-                                                            </p>
-                                                        {/if}
-                                                    </div>
-                                                    <div class="btn-group">
-                                                        <button
-                                                            class="btn btn-sm btn-light-info"
-                                                            aria-label="edit"
-                                                        >
-                                                            <i
-                                                                class="bi bi-pencil"
-                                                            ></i>
-                                                        </button>
-                                                        <button
-                                                            class="btn btn-sm btn-light-danger"
-                                                            aria-label="delete"
-                                                        >
-                                                            <i
-                                                                class="bi bi-trash"
-                                                            ></i>
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                {/each}
-                            </div>
-                        {:else}
-                            <div class="text-center py-5">
-                                <i class="bi bi-person-slash fs-1 text-muted"
-                                ></i>
-                                <p class="text-muted mt-2">
-                                    No hay contactos de emergencia registrados
-                                </p>
-                                <button class="btn btn-primary btn-sm">
-                                    <i class="bi bi-plus"></i> Agregar Primer Contacto
-                                </button>
-                            </div>
-                        {/if}
+                        <EmergencyContactsTab {employee} />
                     {/if}
 
                     <!-- TAB: Historial Salarial -->

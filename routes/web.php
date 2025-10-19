@@ -5,6 +5,7 @@ use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\DocumentController;
+use App\Http\Controllers\EmergencyContactController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\PositionController;
 use Inertia\Inertia;
@@ -77,6 +78,16 @@ Route::middleware('auth')->group(function () {
             Route::get('/{document}/preview', [DocumentController::class, 'previewDocument'])->name('documents.preview');
             Route::delete('/{document}/delete', [DocumentController::class, 'destroyDocument'])->name('documents.destroy');
         });
+
+        Route::prefix('{employee}/contacts')->name('contacts.')->group(function () {
+            Route::get('/', [EmergencyContactController::class, 'contacts'])->name('contacts.all');
+            Route::post('/store', [EmergencyContactController::class, 'storeContact'])->name('contacts.store');
+            Route::put('{contact}/update', [EmergencyContactController::class, 'updateContact'])->name('contacts.update');
+            Route::delete('{contact}/delete', [EmergencyContactController::class, 'destroyContact'])->name('contacts.destroy');
+        });
+
+        // Ruta para obtener tipos de relación (fuera del grupo {employee})
+        Route::get('/relationship-types', [EmergencyContactController::class, 'getRelationshipTypes'])->name('relationship.types');
     });
 
     /*
