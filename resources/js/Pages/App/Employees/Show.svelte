@@ -1,8 +1,9 @@
 <script>
     import AdminLayout from "@layouts/AdminLayout.svelte";
-    import { Link } from "@inertiajs/svelte";
     import DocumentsTab from "@components/DocumentsTab.svelte";
     import EmergencyContactsTab from "@components/EmergencyContactsTab.svelte";
+    import SalaryHistoryTab from "@components/SalaryHistoryTab.svelte";
+    import { Link } from "@inertiajs/svelte";
 
     let { employee, stats } = $props();
 
@@ -454,95 +455,7 @@
 
                     <!-- TAB: Historial Salarial -->
                     {#if activeTab === "salary"}
-                        <div
-                            class="d-flex justify-content-between align-items-center mb-3"
-                        >
-                            <h5 class="mb-0">
-                                Historial de Cambios Salariales
-                            </h5>
-                            <button class="btn btn-primary btn-sm">
-                                <i class="bi bi-plus"></i> Registrar Cambio
-                            </button>
-                        </div>
-
-                        {#if employee.salary_histories && employee.salary_histories.length > 0}
-                            <div class="timeline">
-                                {#each employee.salary_histories as history}
-                                    <div class="mb-4">
-                                        <div
-                                            class="d-flex align-items-start gap-3"
-                                        >
-                                            <div
-                                                class="rounded-circle bg-light-success text-success d-flex align-items-center justify-content-center"
-                                                style="width: 40px; height: 40px; flex-shrink: 0;"
-                                            >
-                                                <i class="bi bi-arrow-up"></i>
-                                            </div>
-                                            <div class="flex-grow-1">
-                                                <div
-                                                    class="d-flex justify-content-between"
-                                                >
-                                                    <div>
-                                                        <h6
-                                                            class="fw-semibold mb-1"
-                                                        >
-                                                            ${parseFloat(
-                                                                history.previous_salary,
-                                                            ).toLocaleString(
-                                                                "es-CO",
-                                                            )} → ${parseFloat(
-                                                                history.new_salary,
-                                                            ).toLocaleString(
-                                                                "es-CO",
-                                                            )}
-                                                        </h6>
-                                                        <small
-                                                            class="text-muted"
-                                                        >
-                                                            {new Date(
-                                                                history.change_date,
-                                                            ).toLocaleDateString(
-                                                                "es-CO",
-                                                                {
-                                                                    year: "numeric",
-                                                                    month: "long",
-                                                                    day: "numeric",
-                                                                },
-                                                            )}
-                                                        </small>
-                                                    </div>
-                                                    <span
-                                                        class="badge bg-light-success text-success"
-                                                    >
-                                                        +{(
-                                                            ((history.new_salary -
-                                                                history.previous_salary) /
-                                                                history.previous_salary) *
-                                                            100
-                                                        ).toFixed(1)}%
-                                                    </span>
-                                                </div>
-                                                {#if history.reason}
-                                                    <p class="mb-0 mt-2">
-                                                        {history.reason}
-                                                    </p>
-                                                {/if}
-                                            </div>
-                                        </div>
-                                    </div>
-                                {/each}
-                            </div>
-                        {:else}
-                            <div class="text-center py-5">
-                                <i class="bi bi-graph-down fs-1 text-muted"></i>
-                                <p class="text-muted mt-2">
-                                    No hay cambios salariales registrados
-                                </p>
-                                <button class="btn btn-primary btn-sm">
-                                    <i class="bi bi-plus"></i> Registrar Primer Cambio
-                                </button>
-                            </div>
-                        {/if}
+                        <SalaryHistoryTab {employee} />
                     {/if}
 
                     <!-- TAB: Proyectos -->

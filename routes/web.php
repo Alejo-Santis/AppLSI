@@ -8,6 +8,7 @@ use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\EmergencyContactController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\PositionController;
+use App\Http\Controllers\SalaryHistoryController;
 use Inertia\Inertia;
 use Symfony\Component\Routing\Attribute\DeprecatedAlias;
 
@@ -88,6 +89,15 @@ Route::middleware('auth')->group(function () {
 
         // Ruta para obtener tipos de relación (fuera del grupo {employee})
         Route::get('/relationship-types', [EmergencyContactController::class, 'getRelationshipTypes'])->name('relationship.types');
+
+        Route::prefix('{employee}/salary-history')->name('salary.')->group(function () {
+            Route::get('/', [SalaryHistoryController::class, 'history'])->name('salaries.all');
+            Route::post('/store', [SalaryHistoryController::class, 'storeHistory'])->name('salaries.store');
+            Route::delete('{history}/delete', [SalaryHistoryController::class, 'destroyHistory'])->name('salaries.destroy');
+        });
+
+        // Ruta para obtener razones de cambio (fuera del grupo {employee})
+        Route::get('/salary-change-reasons', [SalaryHistoryController::class, 'getChangeReasons'])->name('salary.reasons');
     });
 
     /*
