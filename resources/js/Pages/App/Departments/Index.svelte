@@ -3,6 +3,7 @@
     import { page } from "@inertiajs/svelte";
     import AdminLayout from "../../../Layouts/AdminLayout.svelte";
     import DownloadTemplateButton from "@/Components/DownloadTemplateButton.svelte";
+    import ImportModal from "../../../Components/ImportModal.svelte";
 
     let { departments, filters = {} } = $props();
 
@@ -12,6 +13,7 @@
     let perPage = $state(filters.per_page || 10);
     let sortField = $state(filters.sort_field || "name");
     let sortDirection = $state(filters.sort_direction || "asc");
+    let showImportModal = $state(false);
 
     let deleteModal = $state({
         show: false,
@@ -120,13 +122,11 @@
                         </a>
                         <button
                             type="button"
-                            class="btn btn-primary d-flex align-items-center gap-2"
-                            data-bs-toggle="modal"
-                            data-bs-target="#importModal"
+                            class="btn btn-primary"
+                            onclick={() => (showImportModal = true)}
                         >
                             <i class="bi bi-upload"></i>
-
-                            <span>Importar</span>
+                            Importar
                         </button>
                     </div>
                 </div>
@@ -491,127 +491,11 @@
         </div>
     {/if}
 
-    <!-- MODAL DE IMPORTACIÓN -->s
-    <div
-        class="modal fade"
-        id="importModal"
-        tabindex="-1"
-        aria-labelledby="importModalLabel"
-        aria-hidden="true"
-    >
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content border-0 shadow-lg">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="importModalLabel">
-                        <i class="bi bi-upload me-2"></i>
-                        Importar datos
-                    </h5>
-                    <button
-                        type="button"
-                        class="btn-close btn-close-white"
-                        data-bs-dismiss="modal"
-                        aria-label="Cerrar"
-                    ></button>
-                </div>
-                <div class="modal-body">
-                    <form id="importForm" enctype="multipart/form-data">
-                        <!-- Zona drag & drop -->
-                        <div
-                            id="dropZone"
-                            class="border border-2 border-dashed rounded p-4 text-center bg-light"
-                            style="cursor: pointer"
-                        >
-                            <i class="bi bi-cloud-arrow-up fs-1 text-primary"
-                            ></i>
-                            <p class="mt-2 mb-1">Arrastra tu archivo aquí</p>
-                            <small class="text-muted d-block mb-2"
-                                >o haz clic para seleccionarlo</small
-                            >
-                            <input
-                                type="file"
-                                id="fileInput"
-                                name="file"
-                                class="d-none"
-                                accept=".csv,.xlsx,.xls"
-                            />
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button
-                        type="button"
-                        class="btn btn-light"
-                        data-bs-dismiss="modal"
-                    >
-                        <i class="bi bi-x-circle"></i>
-                        Cancelar
-                    </button>
-                    <button
-                        type="submit"
-                        form="importForm"
-                        class="btn btn-success"
-                    >
-                        <i class="bi bi-check"></i>
-                        Importar
-                    </button>
-                    <DownloadTemplateButton
-                        file="departments_template.xlsx"
-                        label="Descargar Plantilla"
-                    />
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- JS PARA DRAG & DROP -->
-
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            const dropZone = document.getElementById("dropZone");
-            const fileInput = document.getElementById("fileInput");
-
-            // Click en zona para abrir selector
-            dropZone.addEventListener("click", () => fileInput.click());
-
-            // Drag & drop
-            dropZone.addEventListener("dragover", (e) => {
-                e.preventDefault();
-                dropZone.classList.add("border-primary", "bg-white");
-            });
-
-            dropZone.addEventListener("dragleave", () => {
-                dropZone.classList.remove("border-primary", "bg-white");
-            });
-
-            dropZone.addEventListener("drop", (e) => {
-                e.preventDefault();
-                dropZone.classList.remove("border-primary", "bg-white");
-                fileInput.files = e.dataTransfer.files;
-                alert(`Archivo seleccionado: ${fileInput.files[0].name}`);
-            });
-
-            // Confirmación al seleccionar archivo manualmente
-            fileInput.addEventListener("change", () => {
-                if (fileInput.files.length > 0) {
-                    alert(`Archivo seleccionado: ${fileInput.files[0].name}`);
-                }
-            });
-
-            // Envío del formulario (aquí puedes llamar tu endpoint Laravel)
-            document
-                .getElementById("importForm")
-                .addEventListener("submit", (e) => {
-                    e.preventDefault();
-                    const file = fileInput.files[0];
-                    if (!file) {
-                        alert(
-                            "Por favor selecciona un archivo antes de importar.",
-                        );
-                        return;
-                    }
-                    alert(`Importando: ${file.name}`);
-                    // Aquí podrías hacer una petición POST con fetch() o Axios
-                });
-        });
-    </script>
+    <!-- Modal de Importación -->
+    <ImportModal
+        show={showImportModal}
+        onClose={() => (showImportModal = false)}
+        importUrl="/departments/import"
+        templateFile="departments_template.xlsx"
+    />
 </AdminLayout>

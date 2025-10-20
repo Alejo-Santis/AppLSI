@@ -2,6 +2,7 @@
     import AdminLayout from "@layouts/AdminLayout.svelte";
     import { Link, router } from "@inertiajs/svelte";
     import DownloadTemplateButton from "../../../Components/DownloadTemplateButton.svelte";
+    import ImportModal from "../../../Components/ImportModal.svelte";
 
     let { employees, departments, positions, filters = {} } = $props();
 
@@ -12,6 +13,7 @@
     let perPage = $state(filters.per_page || 10);
     let sortField = $state(filters.sort_field || "first_name");
     let sortDirection = $state(filters.sort_direction || "asc");
+    let showImportModal = $state(false);
 
     let deleteModal = $state({
         show: false,
@@ -142,12 +144,11 @@
                         </a>
                         <button
                             type="button"
-                            class="btn btn-primary d-flex align-items-center gap-2"
-                            data-bs-toggle="modal"
-                            data-bs-target="#importEmployeesModal"
+                            class="btn btn-primary"
+                            onclick={() => (showImportModal = true)}
                         >
                             <i class="bi bi-upload"></i>
-                            <span>Importar</span>
+                            Importar
                         </button>
                     </div>
                 </div>
@@ -520,103 +521,11 @@
         </div>
     {/if}
 
-    <!-- MODAL IMPORTAR EMPLOYEES -->
-
-    <div
-        class="modal fade"
-        id="importEmployeesModal"
-        tabindex="-1"
-        aria-labelledby="importEmployeesModalLabel"
-        aria-hidden="true"
-    >
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content border-0 shadow-lg">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="importEmployeesModalLabel">
-                        <i class="bi bi-upload me-2"></i>Importar Empleados
-                    </h5>
-                    <button
-                        type="button"
-                        class="btn-close btn-close-white"
-                        data-bs-dismiss="modal"
-                        aria-label="Cerrar"
-                    ></button>
-                </div>
-                <div class="modal-body">
-                    <form
-                        id="importEmployeesForm"
-                        action="/employees/import"
-                        method="POST"
-                        enctype="multipart/form-data"
-                    >
-                        <div
-                            id="dropZoneEmployees"
-                            class="border border-2 border-dashed rounded p-4 text-center bg-light"
-                            style="cursor: pointer"
-                        >
-                            <i class="bi bi-cloud-arrow-up fs-1 text-primary"
-                            ></i>
-                            <p class="mt-2 mb-1">Arrastra tu archivo aquí</p>
-                            <small class="text-muted d-block mb-2"
-                                >o haz clic para seleccionarlo</small
-                            >
-                            <input
-                                type="file"
-                                id="fileInputEmployees"
-                                name="file"
-                                class="d-none"
-                                accept=".csv,.xlsx,.xls"
-                            />
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button
-                        type="button"
-                        class="btn btn-light"
-                        data-bs-dismiss="modal"
-                    >
-                        <i class="bi bi-x-circle"></i>
-                        Cancelar
-                    </button>
-                    <button
-                        type="submit"
-                        form="importEmployeesForm"
-                        class="btn btn-success"
-                    >
-                        <i class="bi bi-check"></i>
-                        Importar
-                    </button>
-                    <DownloadTemplateButton
-                        file="employees_template.xlsx"
-                        label="Descargar Plantilla"
-                    />
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            const dropZone = document.getElementById("dropZoneEmployees");
-            const fileInput = document.getElementById("fileInputEmployees");
-
-            dropZone.addEventListener("click", () => fileInput.click());
-
-            dropZone.addEventListener("dragover", (e) => {
-                e.preventDefault();
-                dropZone.classList.add("border-primary", "bg-white");
-            });
-
-            dropZone.addEventListener("dragleave", () => {
-                dropZone.classList.remove("border-primary", "bg-white");
-            });
-
-            dropZone.addEventListener("drop", (e) => {
-                e.preventDefault();
-                dropZone.classList.remove("border-primary", "bg-white");
-                fileInput.files = e.dataTransfer.files;
-            });
-        });
-    </script>
+    <!-- Modal de Importación -->
+    <ImportModal
+        show={showImportModal}
+        onClose={() => (showImportModal = false)}
+        importUrl="/employees/import"
+        templateFile="employees_template.xlsx"
+    />
 </AdminLayout>

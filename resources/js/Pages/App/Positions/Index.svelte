@@ -2,6 +2,7 @@
     import AdminLayout from "@layouts/AdminLayout.svelte";
     import { Link, router } from "@inertiajs/svelte";
     import DownloadTemplateButton from "../../../Components/DownloadTemplateButton.svelte";
+    import ImportModal from "../../../Components/ImportModal.svelte";
 
     let { positions, filters = {}, levels } = $props();
 
@@ -12,6 +13,7 @@
     let sortField = $state(filters.sort_field || "title");
     let sortDirection = $state(filters.sort_direction || "asc");
     let searchTimeout;
+    let showImportModal = $state(false);
 
     let deleteModal = $state({
         show: false,
@@ -132,12 +134,11 @@
                         </a>
                         <button
                             type="button"
-                            class="btn btn-primary d-flex align-items-center gap-2"
-                            data-bs-toggle="modal"
-                            data-bs-target="#importPositionsModal"
+                            class="btn btn-primary"
+                            onclick={() => (showImportModal = true)}
                         >
                             <i class="bi bi-upload"></i>
-                            <span>Importar</span>
+                            Importar
                         </button>
                     </div>
                 </div>
@@ -476,103 +477,11 @@
         </div>
     {/if}
 
-    <!-- MODAL IMPORTAR POSITIONS -->
-
-    <div
-        class="modal fade"
-        id="importPositionsModal"
-        tabindex="-1"
-        aria-labelledby="importPositionsModalLabel"
-        aria-hidden="true"
-    >
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content border-0 shadow-lg">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="importPositionsModalLabel">
-                        <i class="bi bi-upload me-2"></i>Importar Puestos
-                    </h5>
-                    <button
-                        type="button"
-                        class="btn-close btn-close-white"
-                        data-bs-dismiss="modal"
-                        aria-label="Cerrar"
-                    ></button>
-                </div>
-                <div class="modal-body">
-                    <form
-                        id="importPositionsForm"
-                        action="/positions/import"
-                        method="POST"
-                        enctype="multipart/form-data"
-                    >
-                        <div
-                            id="dropZonePositions"
-                            class="border border-2 border-dashed rounded p-4 text-center bg-light"
-                            style="cursor: pointer"
-                        >
-                            <i class="bi bi-cloud-arrow-up fs-1 text-primary"
-                            ></i>
-                            <p class="mt-2 mb-1">Arrastra tu archivo aquí</p>
-                            <small class="text-muted d-block mb-2"
-                                >o haz clic para seleccionarlo</small
-                            >
-                            <input
-                                type="file"
-                                id="fileInputPositions"
-                                name="file"
-                                class="d-none"
-                                accept=".csv,.xlsx,.xls"
-                            />
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button
-                        type="button"
-                        class="btn btn-light"
-                        data-bs-dismiss="modal"
-                    >
-                        <i class="bi bi-x-circle"></i>
-                        Cancelar
-                    </button>
-                    <button
-                        type="submit"
-                        form="importPositionsForm"
-                        class="btn btn-success"
-                    >
-                        <i class="bi bi-check"></i>
-                        Importar
-                    </button>
-                    <DownloadTemplateButton
-                        file="positions_template.xlsx"
-                        label="Descargar Plantilla"
-                    />
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            const dropZone = document.getElementById("dropZonePositions");
-            const fileInput = document.getElementById("fileInputPositions");
-
-            dropZone.addEventListener("click", () => fileInput.click());
-
-            dropZone.addEventListener("dragover", (e) => {
-                e.preventDefault();
-                dropZone.classList.add("border-primary", "bg-white");
-            });
-
-            dropZone.addEventListener("dragleave", () => {
-                dropZone.classList.remove("border-primary", "bg-white");
-            });
-
-            dropZone.addEventListener("drop", (e) => {
-                e.preventDefault();
-                dropZone.classList.remove("border-primary", "bg-white");
-                fileInput.files = e.dataTransfer.files;
-            });
-        });
-    </script>
+    <!-- Modal de Importación -->
+    <ImportModal
+        show={showImportModal}
+        onClose={() => (showImportModal = false)}
+        importUrl="/positions/import"
+        templateFile="positions_template.xlsx"
+    />
 </AdminLayout>

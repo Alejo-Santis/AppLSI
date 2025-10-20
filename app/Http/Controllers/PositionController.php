@@ -252,16 +252,47 @@ class PositionController extends Controller
     public function import(Request $request)
     {
         $request->validate([
-            'file' => 'required|mimes:xlsx,csv,xls',
+            'file' => 'required|mimes:xlsx,xls,csv|max:5120',
+        ], [
+            'file.required' => 'Por favor selecciona un archivo',
+            'file.mimes' => 'El archivo debe ser Excel (.xlsx, .xls) o CSV',
+            'file.max' => 'El archivo no debe superar los 5MB',
         ]);
 
-        Excel::import(new PositionsImport, $request->file('file'));
+        try {
+            Excel::import(new PositionsImport, $request->file('file'));
 
-        Swal::success([
-            'title' => 'Importación completada',
-            'text' => 'Los puestos fueron importados correctamente.',
-            'icon' => 'success'
-        ]);
-        return redirect()->route('positions.all');
+            Swal::success([
+                'title' => '¡Importación exitosa!',
+                'text' => 'Los puestos se han importado correctamente.',
+                'icon' => 'success',
+                'timer' => 3000,
+            ]);
+
+            return redirect()->route('positions.all');
+        } catch (\Maatwebsite\Excel\Validators\ValidationException $e) {
+            $failures = $e->failures();
+            $errors = [];
+
+            foreach ($failures as $failure) {
+                $errors[] = "Fila {$failure->row()}: " . implode(', ', $failure->errors());
+            }
+
+            Swal::error([
+                'title' => 'Error de validación',
+                'html' => '<ul class="text-start">' . implode('', array_map(fn($e) => "<li>$e</li>", array_slice($errors, 0, 10))) . '</ul>',
+                'icon' => 'error',
+            ]);
+
+            return back();
+        } catch (\Exception $e) {
+            Swal::error([
+                'title' => 'Error en la importación',
+                'text' => 'No se pudo importar el archivo: ' . $e->getMessage(),
+                'icon' => 'error',
+            ]);
+
+            return back();
+        }
     }
 }

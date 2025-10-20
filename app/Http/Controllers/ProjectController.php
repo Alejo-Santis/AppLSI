@@ -328,16 +328,42 @@ class ProjectController extends Controller
     public function import(Request $request)
     {
         $request->validate([
-            'file' => 'required|mimes:xlsx,xls,csv'
+            'file' => 'required|mimes:xlsx,xls,csv|max:5120',
+        ], [
+            'file.required' => 'Please select a file.',
+            'file.mimes' => 'The file must be an Excel (.xlsx, .xls) or CSV file.',
+            'file.max' => 'The file may not exceed 5MB.',
         ]);
 
-        Excel::import(new ProjectsImport, $request->file('file'));
+        try {
+            Excel::import(new ProjectsImport, $request->file('file'));
 
-        Swal::success([
-            'title' => 'Importación exitosa',
-            'text' => 'Los proyectos se importaron correctamente.',
-            'icon' => 'success'
-        ]);
-        return back();
+            Swal::success([
+                'title' => 'Importacion',
+                'text' => 'Los Proyectos han sido importados correctamente.',
+                'icon' => 'success',
+                'timer' => 3000,
+            ]);
+
+            return redirect()->route('projects.all');
+        } catch (\Maatwebsite\Excel\Validators\ValidationException $e) {
+            $errors = collect($e->failures())->map(fn($f) => "Row {$f->row()}: " . implode(', ', $f->errors()))->take(10);
+
+            Swal::error([
+                'title' => 'Validation Error',
+                'html' => '<ul class="text-start">' . $errors->map(fn($e) => "<li>$e</li>")->implode('') . '</ul>',
+                'icon' => 'error',
+            ]);
+
+            return back();
+        } catch (\Exception $e) {
+            Swal::error([
+                'title' => 'Import Error',
+                'text' => 'Could not import file: ' . $e->getMessage(),
+                'icon' => 'error',
+            ]);
+
+            return back();
+        }
     }
 }

@@ -302,24 +302,47 @@ class DepartmentController extends Controller
     public function importDepartments(Request $request)
     {
         $request->validate([
-            'file' => 'required|mimes:xlsx,xls',
+            'file' => 'required|mimes:xlsx,xls,csv|max:5120', // 5MB max
+        ], [
+            'file.required' => 'Por favor selecciona un archivo',
+            'file.mimes' => 'El archivo debe ser Excel (.xlsx, .xls) o CSV',
+            'file.max' => 'El archivo no debe superar los 5MB',
         ]);
 
         try {
             Excel::import(new DepartmentsImport, $request->file('file'));
 
             Swal::success([
-                'title' => 'Importación exitosa',
+                'title' => '¡Importación exitosa!',
                 'text' => 'Los departamentos se han importado correctamente.',
-                'icon' => 'success'
+                'icon' => 'success',
+                'timer' => 3000,
             ]);
+
+            return redirect()->route('departments.all');
+        } catch (\Maatwebsite\Excel\Validators\ValidationException $e) {
+            $failures = $e->failures();
+            $errors = [];
+
+            foreach ($failures as $failure) {
+                $errors[] = "Fila {$failure->row()}: " . implode(', ', $failure->errors());
+            }
+
+            Swal::error([
+                'title' => 'Error de validación',
+                'html' => '<ul class="text-start">' . implode('', array_map(fn($e) => "<li>$e</li>", $errors)) . '</ul>',
+                'icon' => 'error',
+            ]);
+
+            return back();
         } catch (\Exception $e) {
             Swal::error([
                 'title' => 'Error en la importación',
-                'text' => 'No se pudo importar el archivo. ' . $e->getMessage(),
+                'text' => 'No se pudo importar el archivo: ' . $e->getMessage(),
+                'icon' => 'error',
             ]);
-        }
 
-        return redirect()->route('departments.all');
+            return back();
+        }
     }
 }
