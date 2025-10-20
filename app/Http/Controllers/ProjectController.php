@@ -330,36 +330,41 @@ class ProjectController extends Controller
         $request->validate([
             'file' => 'required|mimes:xlsx,xls,csv|max:5120',
         ], [
-            'file.required' => 'Please select a file.',
-            'file.mimes' => 'The file must be an Excel (.xlsx, .xls) or CSV file.',
-            'file.max' => 'The file may not exceed 5MB.',
+            'file.required' => 'Por favor selecciona un archivo',
+            'file.mimes' => 'El archivo debe ser Excel (.xlsx, .xls) o CSV',
+            'file.max' => 'El archivo no debe superar los 5MB',
         ]);
 
         try {
             Excel::import(new ProjectsImport, $request->file('file'));
 
             Swal::success([
-                'title' => 'Importacion',
-                'text' => 'Los Proyectos han sido importados correctamente.',
+                'title' => '¡Importación exitosa!',
+                'text' => 'Los proyectos se han importado correctamente.',
                 'icon' => 'success',
-                'timer' => 3000,
+                'timer' => 5000,
             ]);
 
-            return redirect()->route('projects.all');
+            return back();
         } catch (\Maatwebsite\Excel\Validators\ValidationException $e) {
-            $errors = collect($e->failures())->map(fn($f) => "Row {$f->row()}: " . implode(', ', $f->errors()))->take(10);
+            $failures = $e->failures();
+            $errors = [];
+
+            foreach ($failures as $failure) {
+                $errors[] = "Fila {$failure->row()}: " . implode(', ', $failure->errors());
+            }
 
             Swal::error([
-                'title' => 'Validation Error',
-                'html' => '<ul class="text-start">' . $errors->map(fn($e) => "<li>$e</li>")->implode('') . '</ul>',
+                'title' => 'Error de validación',
+                'html' => '<ul class="text-start">' . implode('', array_map(fn($e) => "<li>$e</li>", array_slice($errors, 0, 10))) . '</ul>',
                 'icon' => 'error',
             ]);
 
             return back();
         } catch (\Exception $e) {
             Swal::error([
-                'title' => 'Import Error',
-                'text' => 'Could not import file: ' . $e->getMessage(),
+                'title' => 'Error en la importación',
+                'text' => 'No se pudo importar el archivo: ' . $e->getMessage(),
                 'icon' => 'error',
             ]);
 

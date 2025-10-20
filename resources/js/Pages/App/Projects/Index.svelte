@@ -1,7 +1,6 @@
 <script>
-    import { Link, router } from "@inertiajs/svelte";
+    import { Link, router, page } from "@inertiajs/svelte";
     import AdminLayout from "../../../Layouts/AdminLayout.svelte";
-    import DownloadTemplateButton from "../../../Components/DownloadTemplateButton.svelte";
     import ImportModal from "../../../Components/ImportModal.svelte";
 
     let { projects, filters = {}, statuses } = $props();

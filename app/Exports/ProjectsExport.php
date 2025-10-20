@@ -5,12 +5,18 @@ namespace App\Exports;
 use App\Models\Project;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
+use Maatwebsite\Excel\Concerns\WithMapping;
 
-class ProjectsExport implements FromCollection, WithHeadings
+class ProjectsExport implements FromCollection, WithHeadings, WithMapping
 {
     public function collection()
     {
-        return Project::select(
+        return Project::with('projectManager')->get();
+    }
+
+    public function headings(): array
+    {
+        return [
             'id',
             'name',
             'code',
@@ -20,23 +26,29 @@ class ProjectsExport implements FromCollection, WithHeadings
             'status',
             'budget',
             'project_manager_id',
-            'created_at'
-        )->get();
+            'project_manager_name',
+            'days_remaining',
+            'progress_percentage',
+            'created_at',
+        ];
     }
 
-    public function headings(): array
+    public function map($project): array
     {
         return [
-            'ID',
-            'Nombre',
-            'Código',
-            'Descripción',
-            'Fecha de Inicio',
-            'Fecha de Fin',
-            'Estado',
-            'Presupuesto',
-            'Gerente de Proyecto (ID)',
-            'Fecha de Creación',
+            $project->id,
+            $project->name,
+            $project->code,
+            $project->description,
+            $project->start_date?->format('Y-m-d'),
+            $project->end_date?->format('Y-m-d'),
+            $project->status,
+            $project->budget,
+            $project->project_manager_id,
+            $project->projectManager ? $project->projectManager->first_name . ' ' . $project->projectManager->last_name : '',
+            $project->days_remaining,
+            $project->progress_percentage . '%',
+            $project->created_at->format('Y-m-d'),
         ];
     }
 }
