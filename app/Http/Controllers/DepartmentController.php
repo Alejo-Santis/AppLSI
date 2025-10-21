@@ -3,12 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Exports\DepartmentsExport;
+use App\Http\Requests\StoreDepartmentRequest;
+use App\Http\Requests\UpdateDepartmentRequest;
 use App\Imports\DepartmentsImport;
 use App\Models\Department;
 use App\Models\Employee;
 use Exception;
 use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 use Maatwebsite\Excel\Facades\Excel;
 use SweetAlert2\Laravel\Swal;
@@ -60,7 +61,7 @@ class DepartmentController extends Controller
             ->map(function ($employee) {
                 return [
                     'id' => $employee->id,
-                    'name' => $employee->first_name . ' ' . $employee->last_name,
+                    'name' => $employee->first_name.' '.$employee->last_name,
                     'email' => $employee->email,
                 ];
             });
@@ -74,38 +75,22 @@ class DepartmentController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function storeDepartment(Request $request)
+    public function storeDepartment(StoreDepartmentRequest $request)
     {
         try {
-
-            $validated = $request->validate([
-                'name' => ['required', 'string', 'max:255'],
-                'code' => ['required', 'string', 'max:50', 'unique:departments,code'],
-                'description' => ['nullable', 'string'],
-                'budget' => ['nullable', 'numeric', 'min:0'],
-                'manager_id' => ['nullable', 'exists:employees,id'],
-                'is_active' => ['boolean'],
-            ], [
-                'name.required' => 'El nombre del departamento es obligatorio',
-                'code.required' => 'El código es obligatorio',
-                'code.unique' => 'Este código ya está en uso',
-                'budget.numeric' => 'El presupuesto debe ser un número válido',
-                'budget.min' => 'El presupuesto no puede ser negativo',
-                'manager_id.exists' => 'El empleado seleccionado no existe',
-            ]);
-
-            $department = Department::create($validated);
+            $department = Department::create($request->validated());
 
             Swal::success([
                 'title' => 'Operación Exitosa',
                 'text' => 'Departamento Creado Exitosamente.',
+                'icon' => 'success',
             ]);
 
             return redirect()->route('departments.all');
         } catch (Exception $e) {
             Swal::error([
                 'title' => '¡Error!',
-                'text' => 'Ocurrió un error al crear el departamento.' . $e->getMessage(),
+                'text' => 'Ocurrió un error al crear el departamento.'.$e->getMessage(),
                 'icon' => 'error',
             ]);
 
@@ -120,7 +105,7 @@ class DepartmentController extends Controller
     {
         $department = Department::find($id);
 
-        if (!$department) {
+        if (! $department) {
             return back()->with('error', 'No se encontro el departamento.');
         }
 
@@ -129,7 +114,7 @@ class DepartmentController extends Controller
             'employees' => function ($query) {
                 $query->with('position')
                     ->orderBy('first_name');
-            }
+            },
         ]);
 
         // Estadísticas
@@ -158,7 +143,7 @@ class DepartmentController extends Controller
     {
         $department = Department::find($id);
 
-        if (!$department) {
+        if (! $department) {
             return back()->with('error', 'No se encontro el departamento a editar.');
         }
 
@@ -169,7 +154,7 @@ class DepartmentController extends Controller
             ->map(function ($employee) {
                 return [
                     'id' => $employee->id,
-                    'name' => $employee->first_name . ' ' . $employee->last_name,
+                    'name' => $employee->first_name.' '.$employee->last_name,
                     'email' => $employee->email,
                 ];
             });
@@ -183,42 +168,22 @@ class DepartmentController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function updateDeparment(Request $request, $id)
+    public function updateDeparment(UpdateDepartmentRequest $request, $id)
     {
         try {
-            $validated = $request->validate([
-                'name' => ['required', 'string', 'max:255'],
-                'code' => [
-                    'required',
-                    'string',
-                    'max:50',
-                    Rule::unique('departments', 'code')->ignore($id),
-                ],
-                'description' => ['nullable', 'string'],
-                'budget' => ['nullable', 'numeric', 'min:0'],
-                'manager_id' => ['nullable', 'exists:employees,id'],
-                'is_active' => ['boolean'],
-            ], [
-                'name.required' => 'El nombre del departamento es obligatorio',
-                'code.required' => 'El código es obligatorio',
-                'code.unique' => 'Este código ya está en uso',
-                'budget.numeric' => 'El presupuesto debe ser un número válido',
-                'budget.min' => 'El presupuesto no puede ser negativo',
-                'manager_id.exists' => 'El empleado seleccionado no existe',
-            ]);
-
             $department = Department::find($id);
 
-            if (!$department) {
+            if (! $department) {
                 Swal::error([
                     'title' => '¡Error!',
                     'text' => 'No se encontro el departamento con ese id',
                     'icon' => 'error',
                 ]);
+
                 return back();
             }
 
-            $department->update($validated);
+            $department->update($request->validated());
 
             Swal::success([
                 'title' => 'Actualizado!',
@@ -230,7 +195,7 @@ class DepartmentController extends Controller
         } catch (Exception $e) {
             Swal::error([
                 'title' => '¡Error!',
-                'text' => 'No se puede actualizar el departamento.' . $e->getMessage(),
+                'text' => 'No se puede actualizar el departamento.'.$e->getMessage(),
                 'icon' => 'error',
             ]);
 
@@ -245,7 +210,7 @@ class DepartmentController extends Controller
     {
         $department = Department::find($id);
 
-        if (!$department) {
+        if (! $department) {
             Swal::error([
                 'title' => '¡Error!',
                 'text' => 'No se puede eliminar el departamento porque tiene empleados asignados',
@@ -255,12 +220,13 @@ class DepartmentController extends Controller
             return back();
         }
 
-        if (!$department->canBeDeleted()) {
+        if (! $department->canBeDeleted()) {
             Swal::error([
                 'title' => '¡Error!',
                 'text' => 'No se puede eliminar el departamento porque tiene empleados asignados',
                 'icon' => 'error',
             ]);
+
             return back();
         }
 
@@ -293,7 +259,7 @@ class DepartmentController extends Controller
         Swal::success([
             'title' => 'Exportación exitosa',
             'text' => 'Los departamentos se han exportado correctamente.',
-            'success' => 'success'
+            'success' => 'success',
         ]);
 
         return Excel::download(new DepartmentsExport, 'departamentos.xlsx');
@@ -325,12 +291,12 @@ class DepartmentController extends Controller
             $errors = [];
 
             foreach ($failures as $failure) {
-                $errors[] = "Fila {$failure->row()}: " . implode(', ', $failure->errors());
+                $errors[] = "Fila {$failure->row()}: ".implode(', ', $failure->errors());
             }
 
             Swal::error([
                 'title' => 'Error de validación',
-                'html' => '<ul class="text-start">' . implode('', array_map(fn($e) => "<li>$e</li>", $errors)) . '</ul>',
+                'html' => '<ul class="text-start">'.implode('', array_map(fn ($e) => "<li>$e</li>", $errors)).'</ul>',
                 'icon' => 'error',
             ]);
 
@@ -338,7 +304,7 @@ class DepartmentController extends Controller
         } catch (\Exception $e) {
             Swal::error([
                 'title' => 'Error en la importación',
-                'text' => 'No se pudo importar el archivo: ' . $e->getMessage(),
+                'text' => 'No se pudo importar el archivo: '.$e->getMessage(),
                 'icon' => 'error',
             ]);
 
