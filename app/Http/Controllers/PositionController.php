@@ -3,13 +3,16 @@
 namespace App\Http\Controllers;
 
 use App\Exports\PositionsExport;
+use App\Http\Requests\Position\StorePositionRequest;
+use App\Http\Requests\Position\UpdatePositionRequest;
 use App\Imports\PositionsImport;
 use App\Models\Position;
-use Illuminate\Http\Request;
-use Inertia\Inertia;
-use SweetAlert2\Laravel\Swal;
 use Exception;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use Inertia\Inertia;
 use Maatwebsite\Excel\Facades\Excel;
+use SweetAlert2\Laravel\Swal;
 
 class PositionController extends Controller
 {
@@ -50,28 +53,10 @@ class PositionController extends Controller
         ]);
     }
 
-    public function storePosition(Request $request)
+    public function storePosition(StorePositionRequest $request)
     {
         try {
-            $validated = $request->validate([
-                'title' => ['required', 'string', 'max:255'],
-                'description' => ['nullable', 'string'],
-                'level' => ['required', 'in:junior,mid,senior,lead,manager,director'],
-                'min_salary' => ['nullable', 'numeric', 'min:0'],
-                'max_salary' => ['nullable', 'numeric', 'min:0', 'gte:min_salary'],
-                'is_active' => ['boolean'],
-            ], [
-                'title.required' => 'El título del puesto es obligatorio',
-                'level.required' => 'El nivel es obligatorio',
-                'level.in' => 'El nivel seleccionado no es válido',
-                'min_salary.numeric' => 'El salario mínimo debe ser un número válido',
-                'min_salary.min' => 'El salario mínimo no puede ser negativo',
-                'max_salary.numeric' => 'El salario máximo debe ser un número válido',
-                'max_salary.min' => 'El salario máximo no puede ser negativo',
-                'max_salary.gte' => 'El salario máximo debe ser mayor o igual al mínimo',
-            ]);
-
-            Position::create($validated);
+            $position = Position::create($request->validated());
 
             Swal::success([
                 'title' => '¡Creado!',
@@ -81,9 +66,15 @@ class PositionController extends Controller
 
             return redirect()->route('positions.all');
         } catch (Exception $e) {
+            Log::error('Error al crear puesto', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'data' => $request->validated(),
+            ]);
+
             Swal::error([
                 'title' => '¡Error!',
-                'text' => 'No se pudo crear el puesto. ' . $e->getMessage(),
+                'text' => 'No se pudo crear el puesto. '.$e->getMessage(),
                 'icon' => 'error',
             ]);
 
@@ -95,12 +86,13 @@ class PositionController extends Controller
     {
         $position = Position::find($id);
 
-        if (!$position) {
+        if (! $position) {
             Swal::error([
                 'title' => '¡Error!',
                 'text' => 'No se encontró el puesto con el ID proporcionado.',
                 'icon' => 'error',
             ]);
+
             return back();
         }
 
@@ -108,7 +100,7 @@ class PositionController extends Controller
             'employees' => function ($query) {
                 $query->with('department')
                     ->orderBy('first_name');
-            }
+            },
         ]);
 
         $stats = [
@@ -119,7 +111,7 @@ class PositionController extends Controller
             'max_employee_salary' => $position->employees->max('salary'),
             'departments_distribution' => $position->employees
                 ->groupBy('department.name')
-                ->map(fn($group) => $group->count()),
+                ->map(fn ($group) => $group->count()),
         ];
 
         return Inertia::render('App/Positions/Show', [
@@ -133,12 +125,13 @@ class PositionController extends Controller
     {
         $position = Position::find($id);
 
-        if (!$position) {
+        if (! $position) {
             Swal::error([
                 'title' => '¡Error!',
                 'text' => 'No se encontró el puesto para editar.',
                 'icon' => 'error',
             ]);
+
             return back();
         }
 
@@ -148,27 +141,9 @@ class PositionController extends Controller
         ]);
     }
 
-    public function updatePosition(Request $request, $id)
+    public function updatePosition(UpdatePositionRequest $request, $id)
     {
         try {
-            $validated = $request->validate([
-                'title' => ['required', 'string', 'max:255'],
-                'description' => ['nullable', 'string'],
-                'level' => ['required', 'in:junior,mid,senior,lead,manager,director'],
-                'min_salary' => ['nullable', 'numeric', 'min:0'],
-                'max_salary' => ['nullable', 'numeric', 'min:0', 'gte:min_salary'],
-                'is_active' => ['boolean'],
-            ], [
-                'title.required' => 'El título del puesto es obligatorio',
-                'level.required' => 'El nivel es obligatorio',
-                'level.in' => 'El nivel seleccionado no es válido',
-                'min_salary.numeric' => 'El salario mínimo debe ser un número válido',
-                'min_salary.min' => 'El salario mínimo no puede ser negativo',
-                'max_salary.numeric' => 'El salario máximo debe ser un número válido',
-                'max_salary.min' => 'El salario máximo no puede ser negativo',
-                'max_salary.gte' => 'El salario máximo debe ser mayor o igual al mínimo',
-            ]);
-
             $position = Position::find($id);
 
             if (!$position) {
@@ -177,10 +152,11 @@ class PositionController extends Controller
                     'text' => 'No se encontró el puesto con ese ID.',
                     'icon' => 'error',
                 ]);
+
                 return back();
             }
 
-            $position->update($validated);
+            $position->update($request->validated());
 
             Swal::success([
                 'title' => 'Actualizado!',
@@ -190,11 +166,18 @@ class PositionController extends Controller
 
             return redirect()->route('positions.all');
         } catch (Exception $e) {
+            Log::error('Error al actualizar puesto', [
+                'position_id' => $id,
+                'error' => $e->getMessage(),
+                'data' => $request->validated(),
+            ]);
+
             Swal::error([
                 'title' => '¡Error!',
-                'text' => 'No se pudo actualizar el puesto. ' . $e->getMessage(),
+                'text' => 'No se pudo actualizar el puesto. '.$e->getMessage(),
                 'icon' => 'error',
             ]);
+
             return back()->withInput();
         }
     }
@@ -203,21 +186,23 @@ class PositionController extends Controller
     {
         $position = Position::find($id);
 
-        if (!$position) {
+        if (! $position) {
             Swal::error([
                 'title' => '¡Error!',
                 'text' => 'No se encontró el puesto con ese ID.',
                 'icon' => 'error',
             ]);
+
             return back();
         }
 
-        if (!$position->canBeDeleted()) {
+        if (! $position->canBeDeleted()) {
             Swal::error([
                 'title' => '¡Error!',
                 'text' => 'No se puede eliminar el puesto porque tiene empleados asignados.',
                 'icon' => 'error',
             ]);
+
             return back();
         }
 
@@ -240,7 +225,7 @@ class PositionController extends Controller
         Swal::success([
             'title' => 'Exportación exitosa',
             'text' => 'Los puestos se han exportado correctamente.',
-            'success' => 'success'
+            'success' => 'success',
         ]);
 
         return Excel::download(new PositionsExport, 'positions.xlsx');
@@ -275,12 +260,12 @@ class PositionController extends Controller
             $errors = [];
 
             foreach ($failures as $failure) {
-                $errors[] = "Fila {$failure->row()}: " . implode(', ', $failure->errors());
+                $errors[] = "Fila {$failure->row()}: ".implode(', ', $failure->errors());
             }
 
             Swal::error([
                 'title' => 'Error de validación',
-                'html' => '<ul class="text-start">' . implode('', array_map(fn($e) => "<li>$e</li>", array_slice($errors, 0, 10))) . '</ul>',
+                'html' => '<ul class="text-start">'.implode('', array_map(fn ($e) => "<li>$e</li>", array_slice($errors, 0, 10))).'</ul>',
                 'icon' => 'error',
             ]);
 
@@ -288,7 +273,7 @@ class PositionController extends Controller
         } catch (\Exception $e) {
             Swal::error([
                 'title' => 'Error en la importación',
-                'text' => 'No se pudo importar el archivo: ' . $e->getMessage(),
+                'text' => 'No se pudo importar el archivo: '.$e->getMessage(),
                 'icon' => 'error',
             ]);
 

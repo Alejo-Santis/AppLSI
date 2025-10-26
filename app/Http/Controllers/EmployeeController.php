@@ -3,9 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Exports\EmployeesExport;
+use App\Http\Requests\Employee\StoreEmployeeRequest;
+use App\Http\Requests\Employee\UpdateEmployeeRequest;
 use App\Imports\EmployeesImport;
-use App\Models\Employee;
 use App\Models\Department;
+use App\Models\Employee;
 use App\Models\Position;
 use Carbon\Carbon;
 use Exception;
@@ -86,46 +88,16 @@ class EmployeeController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function storeEmployee(Request $request)
+    public function storeEmployee(StoreEmployeeRequest $request)
     {
         try {
-            $validated = $request->validate([
-                'first_name' => ['required', 'string', 'max:255'],
-                'last_name' => ['required', 'string', 'max:255'],
-                'email' => ['required', 'email', 'unique:employees,email'],
-                'phone' => ['nullable', 'string', 'max:20'],
-                'hire_date' => ['required', 'date'],
-                'salary' => ['required', 'numeric', 'min:0'],
-                'status' => ['required', 'in:active,inactive,on_leave,terminated'],
-                'birth_date' => ['nullable', 'date', 'before:today'],
-                'address' => ['nullable', 'string'],
-                'photo' => ['nullable', 'image', 'max:2048'], // 2MB max
-                'position_id' => ['required', 'exists:positions,id'],
-                'department_id' => ['required', 'exists:departments,id'],
-            ], [
-                'first_name.required' => 'El nombre es obligatorio',
-                'last_name.required' => 'El apellido es obligatorio',
-                'email.required' => 'El email es obligatorio',
-                'email.email' => 'Ingrese un email válido',
-                'email.unique' => 'Este email ya está registrado',
-                'hire_date.required' => 'La fecha de contratación es obligatoria',
-                'salary.required' => 'El salario es obligatorio',
-                'salary.min' => 'El salario no puede ser negativo',
-                'position_id.required' => 'Debe seleccionar un puesto',
-                'position_id.exists' => 'El puesto seleccionado no existe',
-                'department_id.required' => 'Debe seleccionar un departamento',
-                'department_id.exists' => 'El departamento seleccionado no existe',
-                'birth_date.before' => 'La fecha de nacimiento debe ser anterior a hoy',
-                'photo.image' => 'El archivo debe ser una imagen',
-                'photo.max' => 'La imagen no puede superar los 2MB',
-            ]);
+            $validated = $request->validated();
 
-            // Procesar foto si existe
             if ($request->hasFile('photo')) {
                 $validated['photo_url'] = $request->file('photo')->store('employees/photos', 'public');
             }
 
-            $employee = Employee::create($validated);
+            Employee::create($validated);
 
             Swal::success([
                 'title' => '¡Creado!',
@@ -137,7 +109,7 @@ class EmployeeController extends Controller
         } catch (Exception $e) {
             Swal::error([
                 'title' => 'Error al Crear!',
-                'text' => 'No es posible crear el empleado' . $e->getMessage(),
+                'text' => 'No es posible crear el empleado'.$e->getMessage(),
                 'icon' => 'error',
             ]);
 
@@ -154,20 +126,20 @@ class EmployeeController extends Controller
             'department',
             'position',
             'user',
-            'documents' => fn($q) => $q->orderBy('created_at', 'desc'),
+            'documents' => fn ($q) => $q->orderBy('created_at', 'desc'),
             'emergencyContacts',
-            'salaryHistories' => fn($q) => $q->orderBy('change_date', 'desc'),
+            'salaryHistories' => fn ($q) => $q->orderBy('change_date', 'desc'),
             'projectAssignments.project',
         ]);
 
         // Evitar errores si hire_date es nulo
-        if (!$employee->hire_date) {
+        if (! $employee->hire_date) {
             $stats = [
-                'years_of_service'  => 0,
+                'years_of_service' => 0,
                 'months_in_company' => 0,
-                'total_documents'   => $employee->documents->count(),
-                'active_projects'   => $employee->projectAssignments->where('is_active', true)->count(),
-                'salary_changes'    => $employee->salaryHistories->count(),
+                'total_documents' => $employee->documents->count(),
+                'active_projects' => $employee->projectAssignments->where('is_active', true)->count(),
+                'salary_changes' => $employee->salaryHistories->count(),
             ];
         } else {
             $hireDate = Carbon::parse($employee->hire_date)->startOfDay();
@@ -177,17 +149,17 @@ class EmployeeController extends Controller
             $diff = $hireDate->diff($now);
 
             $stats = [
-                'years_of_service'  => (int) $diff->y,
+                'years_of_service' => (int) $diff->y,
                 'months_in_company' => (int) ($diff->y * 12 + $diff->m),
-                'total_documents'   => $employee->documents->count(),
-                'active_projects'   => $employee->projectAssignments->where('is_active', true)->count(),
-                'salary_changes'    => $employee->salaryHistories->count(),
+                'total_documents' => $employee->documents->count(),
+                'active_projects' => $employee->projectAssignments->where('is_active', true)->count(),
+                'salary_changes' => $employee->salaryHistories->count(),
             ];
         }
 
         return Inertia::render('App/Employees/Show', [
             'employee' => $employee,
-            'stats'    => $stats,
+            'stats' => $stats,
         ]);
     }
 
@@ -210,7 +182,7 @@ class EmployeeController extends Controller
                 'photo_url' => $employee->photo_url,
                 'position_id' => $employee->position_id,
                 'department_id' => $employee->department_ids,
-                $employee
+                $employee,
             ],
             'departments' => Department::where('is_active', true)
                 ->select('id', 'name', 'code')
@@ -226,37 +198,10 @@ class EmployeeController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function updateEmployee(Request $request, Employee $employee)
+    public function updateEmployee(UpdateEmployeeRequest $request, Employee $employee)
     {
         try {
-
-            $validated = $request->validate([
-                'first_name' => ['required', 'string', 'max:255'],
-                'last_name' => ['required', 'string', 'max:255'],
-                'email' => ['required', 'email', 'unique:employees,email,' . $employee->id],
-                'phone' => ['nullable', 'string', 'max:20'],
-                'hire_date' => ['required', 'date'],
-                'salary' => ['required', 'numeric', 'min:0'],
-                'status' => ['required', 'in:active,inactive,on_leave,terminated'],
-                'birth_date' => ['nullable', 'date', 'before:today'],
-                'address' => ['nullable', 'string'],
-                'photo' => ['nullable', 'image', 'max:2048'],
-                'position_id' => ['required', 'exists:positions,id'],
-                'department_id' => ['required', 'exists:departments,id'],
-            ], [
-                'first_name.required' => 'El nombre es obligatorio',
-                'last_name.required' => 'El apellido es obligatorio',
-                'email.required' => 'El email es obligatorio',
-                'email.email' => 'Ingrese un email válido',
-                'email.unique' => 'Este email ya está registrado',
-                'hire_date.required' => 'La fecha de contratación es obligatoria',
-                'salary.required' => 'El salario es obligatorio',
-                'salary.min' => 'El salario no puede ser negativo',
-                'position_id.required' => 'Debe seleccionar un puesto',
-                'department_id.required' => 'Debe seleccionar un departamento',
-                'birth_date.before' => 'La fecha de nacimiento debe ser anterior a hoy',
-            ]);
-
+            $validated = $request->validated();
             // Procesar foto si existe
             if ($request->hasFile('photo')) {
                 // Eliminar foto anterior si existe
@@ -278,7 +223,7 @@ class EmployeeController extends Controller
         } catch (Exception $e) {
             Swal::error([
                 'title' => 'Error al Actualizar!',
-                'text' => 'No es posible acualizar el empleado' . $e->getMessage(),
+                'text' => 'No es posible acualizar el empleado'.$e->getMessage(),
                 'icon' => 'success',
             ]);
 
@@ -298,6 +243,7 @@ class EmployeeController extends Controller
                 'text' => 'No se puede eliminar el empleado porque tiene proyectos activos asignados',
                 'icon' => 'error',
             ]);
+
             return back();
         }
 
@@ -308,6 +254,7 @@ class EmployeeController extends Controller
                 'text' => 'No se puede eliminar el empleado porque es manager de uno o más departamentos',
                 'icon' => 'error',
             ]);
+
             return back();
         }
 
@@ -317,7 +264,7 @@ class EmployeeController extends Controller
         Swal::success([
             'title' => 'Eliminado',
             'text' => 'Empleado eliminado correctamete.',
-            'icon' => 'success'
+            'icon' => 'success',
         ]);
 
         return redirect()->route('employees.all');
@@ -346,7 +293,7 @@ class EmployeeController extends Controller
         Swal::success([
             'title' => 'Exportación exitosa',
             'text' => 'Los empleados se han exportado correctamente.',
-            'success' => 'success'
+            'success' => 'success',
         ]);
 
         return Excel::download(new EmployeesExport, 'employees.xlsx');
@@ -378,12 +325,12 @@ class EmployeeController extends Controller
             $errors = [];
 
             foreach ($failures as $failure) {
-                $errors[] = "Fila {$failure->row()}: " . implode(', ', $failure->errors());
+                $errors[] = "Fila {$failure->row()}: ".implode(', ', $failure->errors());
             }
 
             Swal::error([
                 'title' => 'Error de validación',
-                'html' => '<ul class="text-start">' . implode('', array_map(fn($e) => "<li>$e</li>", array_slice($errors, 0, 10))) . '</ul>',
+                'html' => '<ul class="text-start">'.implode('', array_map(fn ($e) => "<li>$e</li>", array_slice($errors, 0, 10))).'</ul>',
                 'icon' => 'error',
             ]);
 
@@ -391,7 +338,7 @@ class EmployeeController extends Controller
         } catch (\Exception $e) {
             Swal::error([
                 'title' => 'Error en la importación',
-                'text' => 'No se pudo importar el archivo: ' . $e->getMessage(),
+                'text' => 'No se pudo importar el archivo: '.$e->getMessage(),
                 'icon' => 'error',
             ]);
 

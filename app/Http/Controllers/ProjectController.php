@@ -3,13 +3,15 @@
 namespace App\Http\Controllers;
 
 use App\Exports\ProjectsExport;
+use App\Http\Requests\Project\StoreProjectRequest;
+use App\Http\Requests\Project\UpdateProjectRequest;
 use App\Imports\ProjectsImport;
-use App\Models\Project;
 use App\Models\Employee;
-use App\Models\ProjectAssignment;
+use App\Models\Project;
 use App\Models\ProjectAssignments;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 use Maatwebsite\Excel\Facades\Excel;
 use SweetAlert2\Laravel\Swal;
@@ -48,9 +50,9 @@ class ProjectController extends Controller
                 ->select('id', 'first_name', 'last_name', 'email')
                 ->orderBy('first_name')
                 ->get()
-                ->map(fn($e) => [
+                ->map(fn ($e) => [
                     'id' => $e->id,
-                    'name' => $e->first_name . ' ' . $e->last_name,
+                    'name' => $e->first_name.' '.$e->last_name,
                     'email' => $e->email,
                 ]),
             'suggestedCode' => Project::generateCode(),
@@ -58,21 +60,10 @@ class ProjectController extends Controller
         ]);
     }
 
-    public function storeProject(Request $request)
+    public function storeProject(StoreProjectRequest $request)
     {
         try {
-            $validated = $request->validate([
-                'name' => ['required', 'string', 'max:255'],
-                'code' => ['required', 'string', 'max:50', 'unique:projects,code'],
-                'description' => ['nullable', 'string'],
-                'start_date' => ['required', 'date'],
-                'end_date' => ['nullable', 'date', 'after_or_equal:start_date'],
-                'status' => ['required', 'in:' . implode(',', array_keys(Project::getStatuses()))],
-                'budget' => ['nullable', 'numeric', 'min:0'],
-                'project_manager_id' => ['nullable', 'exists:employees,id'],
-            ]);
-
-            Project::create($validated);
+            Project::create($request->validated());
 
             Swal::success([
                 'title' => '¡Creado!',
@@ -82,11 +73,17 @@ class ProjectController extends Controller
 
             return redirect()->route('projects.all');
         } catch (Exception $e) {
+            Log::error('Error al crear proyecto', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
             Swal::error([
                 'title' => 'Error',
-                'text' => 'No se pudo crear el proyecto: ' . $e->getMessage(),
+                'text' => 'No se pudo crear el proyecto: '.$e->getMessage(),
                 'icon' => 'error',
             ]);
+
             return back()->withInput();
         }
     }
@@ -99,7 +96,7 @@ class ProjectController extends Controller
                 $q->with(['employee.position', 'employee.department'])
                     ->orderBy('is_active', 'desc')
                     ->orderBy('assigned_date', 'desc');
-            }
+            },
         ]);
 
         $stats = [
@@ -119,9 +116,9 @@ class ProjectController extends Controller
                 ->select('id', 'first_name', 'last_name', 'email')
                 ->orderBy('first_name')
                 ->get()
-                ->map(fn($e) => [
+                ->map(fn ($e) => [
                     'id' => $e->id,
-                    'name' => $e->first_name . ' ' . $e->last_name,
+                    'name' => $e->first_name.' '.$e->last_name,
                     'email' => $e->email,
                 ]),
         ]);
@@ -171,21 +168,20 @@ class ProjectController extends Controller
         ]);
     }
 
-    public function updateProject(Request $request, Project $project)
+    public function updateProject(UpdateProjectRequest $request, Project $project)
     {
         try {
-            $validated = $request->validate([
-                'name' => ['required', 'string', 'max:255'],
-                'code' => ['required', 'string', 'max:50', 'unique:projects,code,' . $project->id],
-                'description' => ['nullable', 'string'],
-                'start_date' => ['required', 'date'],
-                'end_date' => ['nullable', 'date', 'after_or_equal:start_date'],
-                'status' => ['required', 'in:' . implode(',', array_keys(Project::getStatuses()))],
-                'budget' => ['nullable', 'numeric', 'min:0'],
-                'project_manager_id' => ['nullable', 'exists:employees,id'],
-            ]);
+            if (! $project->exists()) {
+                Swal::error([
+                    'title' => 'Error',
+                    'text' => 'Proyecto no encontrado',
+                    'icon' => 'error',
+                ]);
 
-            $project->update($validated);
+                return back();
+            }
+
+            $project->update($request->validated());
 
             Swal::success([
                 'title' => '¡Actualizado!',
@@ -197,9 +193,10 @@ class ProjectController extends Controller
         } catch (Exception $e) {
             Swal::error([
                 'title' => 'Error',
-                'text' => 'No se pudo actualizar el proyecto: ' . $e->getMessage(),
+                'text' => 'No se pudo actualizar el proyecto: '.$e->getMessage(),
                 'icon' => 'error',
             ]);
+
             return back()->withInput();
         }
     }
@@ -213,6 +210,7 @@ class ProjectController extends Controller
                     'text' => 'El proyecto tiene empleados activos asignados',
                     'icon' => 'warning',
                 ]);
+
                 return back();
             }
 
@@ -228,9 +226,10 @@ class ProjectController extends Controller
         } catch (Exception $e) {
             Swal::error([
                 'title' => 'Error',
-                'text' => 'No se pudo eliminar el proyecto: ' . $e->getMessage(),
+                'text' => 'No se pudo eliminar el proyecto: '.$e->getMessage(),
                 'icon' => 'error',
             ]);
+
             return back();
         }
     }
@@ -257,6 +256,7 @@ class ProjectController extends Controller
                     'text' => 'El empleado ya está asignado activamente a este proyecto',
                     'icon' => 'warning',
                 ]);
+
                 return back();
             }
 
@@ -272,16 +272,17 @@ class ProjectController extends Controller
             Swal::success([
                 'title' => 'Asignado',
                 'text' => 'El empleado ha sido asignado al proyecto con exito',
-                'icon' => 'success'
+                'icon' => 'success',
             ]);
 
             return back();
         } catch (Exception $e) {
             Swal::error([
                 'title' => 'Error',
-                'text' => 'No se pudo asignar el empleado: ' . $e->getMessage(),
+                'text' => 'No se pudo asignar el empleado: '.$e->getMessage(),
                 'icon' => 'error',
             ]);
+
             return back();
         }
     }
@@ -301,16 +302,17 @@ class ProjectController extends Controller
             Swal::success([
                 'title' => 'Asignado',
                 'text' => 'El empleado ha sido removido del proyecto con exito',
-                'icon' => 'success'
+                'icon' => 'success',
             ]);
 
             return back();
         } catch (Exception $e) {
             Swal::error([
                 'title' => 'Error',
-                'text' => 'No se pudo remover el empleado: ' . $e->getMessage(),
+                'text' => 'No se pudo remover el empleado: '.$e->getMessage(),
                 'icon' => 'error',
             ]);
+
             return back();
         }
     }
@@ -320,8 +322,9 @@ class ProjectController extends Controller
         Swal::success([
             'title' => 'Exportación completada',
             'text' => 'El archivo de proyectos se generó correctamente.',
-            'icon' => 'success'
+            'icon' => 'success',
         ]);
+
         return Excel::download(new ProjectsExport, 'projects.xlsx');
     }
 
@@ -351,12 +354,12 @@ class ProjectController extends Controller
             $errors = [];
 
             foreach ($failures as $failure) {
-                $errors[] = "Fila {$failure->row()}: " . implode(', ', $failure->errors());
+                $errors[] = "Fila {$failure->row()}: ".implode(', ', $failure->errors());
             }
 
             Swal::error([
                 'title' => 'Error de validación',
-                'html' => '<ul class="text-start">' . implode('', array_map(fn($e) => "<li>$e</li>", array_slice($errors, 0, 10))) . '</ul>',
+                'html' => '<ul class="text-start">'.implode('', array_map(fn ($e) => "<li>$e</li>", array_slice($errors, 0, 10))).'</ul>',
                 'icon' => 'error',
             ]);
 
@@ -364,7 +367,7 @@ class ProjectController extends Controller
         } catch (\Exception $e) {
             Swal::error([
                 'title' => 'Error en la importación',
-                'text' => 'No se pudo importar el archivo: ' . $e->getMessage(),
+                'text' => 'No se pudo importar el archivo: '.$e->getMessage(),
                 'icon' => 'error',
             ]);
 
