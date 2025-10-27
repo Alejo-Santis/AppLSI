@@ -3,11 +3,10 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Inertia\Inertia;
-use App\Models\User;
-use App\Models\Task;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
+use Inertia\Inertia;
 use SweetAlert2\Laravel\Swal;
 
 class UserController extends Controller
@@ -42,7 +41,7 @@ class UserController extends Controller
 
         $data = $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|email|max:255|unique:users,email,' . $user->id,
+            'email' => 'required|email|max:255|unique:users,email,'.$user->id,
             'avatar' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
         ]);
 
@@ -71,13 +70,13 @@ class UserController extends Controller
             Swal::success([
                 'title' => 'Foto eliminada',
                 'text' => 'Tu foto de perfil ha sido eliminada correctamente.',
-                'icon' => 'success'
+                'icon' => 'success',
             ]);
         } else {
             Swal::error([
                 'title' => 'Error',
                 'text' => 'No se encontró ninguna foto para eliminar.',
-                'icon' => 'error'
+                'icon' => 'error',
             ]);
         }
 
@@ -93,7 +92,7 @@ class UserController extends Controller
 
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|email|max:255|unique:users,email,' . $user->id,
+            'email' => 'required|email|max:255|unique:users,email,'.$user->id,
         ]);
 
         $user->update($validated);
@@ -127,6 +126,8 @@ class UserController extends Controller
             'icon' => 'success',
         ]);
 
-        return back();
+        Auth::logout();
+
+        return redirect()->route('login');
     }
 }

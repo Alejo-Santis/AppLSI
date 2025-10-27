@@ -5,10 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable
 {
-    use HasFactory, Notifiable;
+    use HasFactory, HasRoles, Notifiable;
 
     /**
      * The attributes that are mass assignable.
@@ -84,11 +85,19 @@ class User extends Authenticatable
     }
 
     /**
+     * Verificar si el usuario tiene el rol básico especificado
+     */
+    public function hasBasicRole(string $role): bool
+    {
+        return $this->role === $role;
+    }
+
+    /**
      * Verificar si el usuario es admin
      */
     public function isAdmin(): bool
     {
-        return $this->role === 'admin';
+        return $this->role === 'admin' || $this->hasRole('Admin');
     }
 
     /**
@@ -96,7 +105,7 @@ class User extends Authenticatable
      */
     public function isManager(): bool
     {
-        return $this->role === 'manager';
+        return $this->role === 'manager' || $this->hasRole('Manager');
     }
 
     /**
@@ -104,7 +113,7 @@ class User extends Authenticatable
      */
     public function isHR(): bool
     {
-        return $this->role === 'hr';
+        return $this->role === 'hr' || $this->hasRole('HR');
     }
 
     /**
@@ -137,8 +146,17 @@ class User extends Authenticatable
     public function getFullNameAttribute(): string
     {
         if ($this->employee) {
-            return $this->employee->first_name . ' ' . $this->employee->last_name;
+            return $this->employee->first_name.' '.$this->employee->last_name;
         }
+
         return $this->name;
+    }
+
+    /**
+     * Obtener todos los permisos (incluye roles y permisos directos)
+     */
+    public function getAllPermissionsNames(): array
+    {
+        return $this->getAllPermissions()->pluck('name')->toArray();
     }
 }
