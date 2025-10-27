@@ -8,7 +8,7 @@
 
 <a
     class="btn btn-outline-primary d-flex align-items-center gap-2"
-    href={`/storage/templates/${file}`}
+    href={`/templates/${file}`}
     download
 >
     <i class={icon}></i>
