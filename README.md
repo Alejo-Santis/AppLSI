@@ -1,61 +1,140 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# AppLSI - Sistema de Gestión de Recursos Humanos
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+![Laravel](https://img.shields.io/badge/Laravel-FF2D20?style=for-the-badge&logo=laravel&logoColor=white)
+![Inertia.js](https://img.shields.io/badge/Inertia.js-000000?style=for-the-badge&logo=inertia&logoColor=white)
+![Svelte](https://img.shields.io/badge/Svelte-5-FF3E00?style=for-the-badge&logo=svelte)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-316192?style=for-the-badge&logo=postgresql&logoColor=white)
+![Bootstrap](https://img.shields.io/badge/Bootstrap-5-7952B3?style=for-the-badge&logo=bootstrap&logoColor=white)
 
-## About Laravel
+## Descripción del Proyecto
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+AppLSI es un sistema de gestión de recursos humanos desarrollado con Laravel 12, Inertia.js y Svelte 5. Esta aplicación permite gestionar empleados, departamentos, puestos de trabajo, documentos y más, todo a través de una interfaz intuitiva y fácil de usar, construida con Bootstrap 5 para un diseño responsivo y moderno.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## 🚀 Tecnologías Principales
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+- **Backend**: Laravel 12.x
+- **Frontend**: Inertia.js con Svelte 5
+- **Base de datos**: PostgreSQL
+- **Autenticación**: Laravel Breeze
+- **UI/UX**: Bootstrap 5
+- **Control de Acceso**: Spatie Laravel Permission
+- **Exportación/Importación de Datos**: Maatwebsite/Excel
+- **Notificaciones**: SweetAlert2
 
-## Learning Laravel
+## 📋 Requisitos del Sistema
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+- PHP 8.2 o superior
+- Composer
+- Node.js 20+ y NPM
+- PostgreSQL 14+
+- Servidor web (Apache/Nginx)
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+## 🛠️ Instalación
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+1. **Clonar el repositorio**
+   ```bash
+   git clone [URL_DEL_REPOSITORIO]
+   cd AppLSI
+   ```
 
-## Laravel Sponsors
+2. **Instalar dependencias de PHP**
+   ```bash
+   composer install
+   ```
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+3. **Instalar dependencias de Node.js**
+   ```bash
+   npm install
+   ```
 
-### Premium Partners
+4. **Configurar el entorno**
+   ```bash
+   cp .env.example .env
+   php artisan key:generate
+   ```
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+5. **Configurar la base de datos**
+   Editar el archivo `.env` con las credenciales de tu base de datos.
 
-## Contributing
+6. **Ejecutar migraciones y seeders**
+   ```bash
+   php artisan migrate --seed
+   ```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+7. **Compilar assets**
+   ```bash
+   npm run dev
+   # o para producción
+   npm run build
+   ```
 
-## Code of Conduct
+8. **Iniciar el servidor**
+   ```bash
+   php artisan serve
+   ```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+## 🔐 Credenciales por defecto
 
-## Security Vulnerabilities
+- **Email**: admin@example.com
+- **Contraseña**: password
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+## 📚 Módulos Principales
 
-## License
+### 1. Autenticación y Perfil de Usuario
+- Inicio de sesión
+- Registro de nuevos usuarios
+- Recuperación de contraseña
+- Perfil de usuario
+- Actualización de información personal
+- Cambio de contraseña
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+### 2. Gestión de Departamentos
+- Listado de departamentos
+- Creación de departamentos
+- Edición de departamentos
+- Eliminación de departamentos
+- Exportación/Importación de datos
+
+### 3. Gestión de Puestos
+- Listado de puestos
+- Creación de puestos
+- Edición de puestos
+- Eliminación de puestos
+- Exportación/Importación de datos
+
+### 4. Gestión de Empleados
+- Listado de empleados
+- Creación de empleados
+- Visualización de detalles del empleado
+- Edición de empleados
+- Documentación asociada
+- Contactos de emergencia
+- Historial salarial
+
+### 5. Gestión de Proyectos
+- Listado de proyectos
+- Creación de proyectos
+- Asignación de empleados a proyectos
+- Seguimiento de progreso
+
+## 🧩 Características Adicionales
+
+- Interfaz responsiva
+- Exportación a Excel
+- Importación desde Excel
+- Búsqueda y filtrado avanzado
+- Roles y permisos
+- Panel de administración
+- Notificaciones en tiempo real
+
+## 📄 Licencia
+
+Este proyecto está bajo la licencia [MIT](LICENSE).
+
+## 🤝 Contribución
+
+Las contribuciones son bienvenidas. Por favor, lee las [pautas de contribución](CONTRIBUTING.md) antes de enviar un pull request.
+
+## ✉️ Contacto
+
+Para consultas o soporte, por favor contacta al equipo de desarrollo.
