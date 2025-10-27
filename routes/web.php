@@ -97,7 +97,7 @@ Route::middleware('auth')->group(function () {
         Route::post('/store', [EmployeeController::class, 'storeEmployee'])->name('employees.store');
         Route::get('/show/{employee}', [EmployeeController::class, 'showEmployeeDetails'])->name('employees.show');
         Route::get('/edit/{employee}', [EmployeeController::class, 'editEmployee'])->name('employees.edit');
-        Route::put('/update/{employee}', [EmployeeController::class, 'updateEmployee'])->name('employees.update');
+        Route::post('/update/{employee}', [EmployeeController::class, 'updateEmployee'])->name('employees.update');
         Route::delete('/delete/{employee}', [EmployeeController::class, 'destroyEmployee'])->name('employees.delete');
         Route::delete('/{employee}/photo', [EmployeeController::class, 'deletePhoto'])
             ->name('employees.delete-photo');

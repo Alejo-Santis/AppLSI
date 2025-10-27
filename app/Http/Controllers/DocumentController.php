@@ -153,7 +153,7 @@ class DocumentController extends Controller
 
         // Solo permitir preview de PDFs e imágenes
         if (!$document->isPdf() && !$document->isImage()) {
-            return redirect()->route('employees.documents.download', [$employee, $document]);
+            return redirect()->route('employees.documents.documents.download', [$employee, $document]);
         }
 
         $file = Storage::disk('public')->get($document->file_path);

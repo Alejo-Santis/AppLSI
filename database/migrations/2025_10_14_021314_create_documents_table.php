@@ -23,10 +23,13 @@ return new class extends Migration
                 'certificate',
                 'id_document',
                 'tax_form',
-                'other'
+                'resume',
+                'diploma',
+                'recommendation',
+                'other',
             ])->default('other');
             $table->string('file_path');
-            $table->integer('file_size')->nullable(); 
+            $table->integer('file_size')->nullable();
             $table->foreignId('uploaded_by')
                 ->nullable()
                 ->constrained('users')

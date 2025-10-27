@@ -170,6 +170,7 @@ class EmployeeController extends Controller
     {
         return Inertia::render('App/Employees/Edit', [
             'employee' => [
+                'id' => $employee->id,
                 'first_name' => $employee->first_name,
                 'last_name' => $employee->last_name,
                 'email' => $employee->email,
@@ -181,7 +182,7 @@ class EmployeeController extends Controller
                 'address' => $employee->address,
                 'photo_url' => $employee->photo_url,
                 'position_id' => $employee->position_id,
-                'department_id' => $employee->department_ids,
+                'department_id' => $employee->department_id,
                 $employee,
             ],
             'departments' => Department::where('is_active', true)
@@ -202,6 +203,7 @@ class EmployeeController extends Controller
     {
         try {
             $validated = $request->validated();
+
             // Procesar foto si existe
             if ($request->hasFile('photo')) {
                 // Eliminar foto anterior si existe
@@ -214,17 +216,17 @@ class EmployeeController extends Controller
             $employee->update($validated);
 
             Swal::success([
-                'title' => '¡Acualizado!',
-                'text' => 'Empleado acualizado exitosamente',
+                'title' => '¡Actualizado!',
+                'text' => 'Empleado actualizado exitosamente',
                 'icon' => 'success',
             ]);
 
-            return redirect()->route('employees.all');
+            return redirect()->route('employees.show', $employee);
         } catch (Exception $e) {
             Swal::error([
                 'title' => 'Error al Actualizar!',
-                'text' => 'No es posible acualizar el empleado'.$e->getMessage(),
-                'icon' => 'success',
+                'text' => 'No es posible actualizar el empleado: '.$e->getMessage(),
+                'icon' => 'error',
             ]);
 
             return back()->withInput();
@@ -278,14 +280,23 @@ class EmployeeController extends Controller
         if ($employee->photo_url) {
             Storage::disk('public')->delete($employee->photo_url);
             $employee->update(['photo_url' => null]);
+
+            Swal::success([
+                'title' => 'Eliminado',
+                'text' => 'Foto eliminada exitosamente',
+                'icon' => 'success',
+            ]);
+
+            return redirect()->route('employees.show', $employee);
         }
-        Swal::success([
-            'title' => 'Eliminado',
-            'text' => 'Foto eliminada exitosamente',
-            'icon' => 'success',
+
+        Swal::error([
+            'title' => 'Error',
+            'text' => 'No hay foto para eliminar',
+            'icon' => 'error',
         ]);
 
-        return back();
+        return redirect()->route('employees.show', $employee);
     }
 
     public function exportEmployees()

@@ -2,7 +2,7 @@
     import AdminLayout from "@layouts/AdminLayout.svelte";
     import { Link, router } from "@inertiajs/svelte";
     import { useForm } from "@inertiajs/svelte";
-
+    import Swal from "sweetalert2";
     let { employee, departments, positions, errors = {} } = $props();
 
     const form = useForm({
@@ -26,9 +26,28 @@
 
     function submit(e) {
         e.preventDefault();
-        $form.post(`/employees/${employee.id}`, {
+
+        // Usar POST con _method para simular PUT cuando hay archivos
+        $form.post(`/employees/update/${employee.id}`, {
             forceFormData: true,
-            _method: "put",
+            preserveScroll: true,
+            onSuccess: () => {
+                Swal.fire({
+                    title: "¡Actualizado!",
+                    text: "Empleado actualizado exitosamente",
+                    icon: "success",
+                    confirmButtonText: "OK",
+                });
+            },
+            onError: (errors) => {
+                console.log("Errores:", errors);
+                Swal.fire({
+                    title: "Error",
+                    text: "Por favor revisa los campos del formulario",
+                    icon: "error",
+                    confirmButtonText: "OK",
+                });
+            },
         });
     }
 
@@ -45,17 +64,35 @@
     }
 
     function removePhoto() {
-        if (confirm("¿Estás seguro de eliminar la foto?")) {
-            router.delete(`/employees/${employee.id}/photo`, {
-                preserveScroll: true,
-                onSuccess: () => {
-                    photoPreview = null;
-                    $form.photo = null;
-                    const input = document.getElementById("photo");
-                    if (input) input.value = "";
-                },
-            });
-        }
+        Swal.fire({
+            title: "¿Estás seguro?",
+            text: "No podrás revertir esto!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Sí, eliminarlo!",
+            cancelButtonText: "Cancelar",
+        }).then((result) => {
+            if (result.isConfirmed) {
+                router.delete(`/employees/${employee.id}/photo`, {
+                    preserveScroll: true,
+                    onSuccess: () => {
+                        photoPreview = null;
+                        $form.photo = null;
+                        const input = document.getElementById("photo");
+                        if (input) input.value = "";
+
+                        Swal.fire({
+                            title: "¡Eliminado!",
+                            text: "La foto ha sido eliminada",
+                            icon: "success",
+                            timer: 2000,
+                        });
+                    },
+                });
+            }
+        });
     }
 </script>
 
@@ -95,7 +132,6 @@
                 </div>
             </div>
         </div>
-
         <!-- Formulario -->
         <form onsubmit={submit} enctype="multipart/form-data">
             <div class="row">

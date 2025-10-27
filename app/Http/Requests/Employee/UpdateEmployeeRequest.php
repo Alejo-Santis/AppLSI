@@ -55,7 +55,7 @@ class UpdateEmployeeRequest extends FormRequest
             'email' => [
                 'required',
                 'email:rfc,dns',
-                'unique:employees,email,' . $employeeId,
+                'unique:employees,email,'.$employeeId,
                 'max:255',
             ],
             'phone' => [
@@ -103,7 +103,7 @@ class UpdateEmployeeRequest extends FormRequest
                     if ($value) {
                         $birthDate = \Carbon\Carbon::parse($value);
                         $age = $birthDate->age;
-                        
+
                         if ($age < 18) {
                             $fail('El empleado debe ser mayor de 18 años.');
                         }
@@ -131,7 +131,7 @@ class UpdateEmployeeRequest extends FormRequest
                 'exists:positions,id',
                 function ($attribute, $value, $fail) {
                     $position = \App\Models\Position::find($value);
-                    if ($position && !$position->is_active) {
+                    if ($position && ! $position->is_active) {
                         $fail('El puesto seleccionado no está activo.');
                     }
                 },
@@ -142,7 +142,7 @@ class UpdateEmployeeRequest extends FormRequest
                 'exists:departments,id',
                 function ($attribute, $value, $fail) {
                     $department = \App\Models\Department::find($value);
-                    if ($department && !$department->is_active) {
+                    if ($department && ! $department->is_active) {
                         $fail('El departamento seleccionado no está activo.');
                     }
                 },
@@ -156,39 +156,57 @@ class UpdateEmployeeRequest extends FormRequest
             'first_name.required' => 'El nombre es obligatorio.',
             'first_name.min' => 'El nombre debe tener al menos 2 caracteres.',
             'first_name.regex' => 'El nombre solo puede contener letras.',
-            
+
             'last_name.required' => 'El apellido es obligatorio.',
             'last_name.min' => 'El apellido debe tener al menos 2 caracteres.',
             'last_name.regex' => 'El apellido solo puede contener letras.',
-            
+
             'email.required' => 'El email es obligatorio.',
             'email.email' => 'Ingrese un email válido.',
             'email.unique' => 'Este email ya está registrado.',
-            
+
             'phone.min' => 'El teléfono debe tener al menos 7 caracteres.',
             'phone.regex' => 'El formato del teléfono no es válido.',
-            
+
             'hire_date.required' => 'La fecha de contratación es obligatoria.',
             'hire_date.before_or_equal' => 'La fecha de contratación no puede ser futura.',
-            
+
             'salary.required' => 'El salario es obligatorio.',
             'salary.numeric' => 'El salario debe ser un número válido.',
             'salary.min' => 'El salario no puede ser negativo.',
-            
+
             'status.required' => 'El estado es obligatorio.',
             'status.in' => 'El estado seleccionado no es válido.',
-            
+
             'birth_date.before' => 'La fecha de nacimiento debe ser anterior a hoy.',
-            
+
             'photo.image' => 'El archivo debe ser una imagen.',
             'photo.mimes' => 'La imagen debe ser JPG, JPEG o PNG.',
             'photo.max' => 'La imagen no puede superar los 2MB.',
-            
+
             'position_id.required' => 'Debe seleccionar un puesto.',
             'position_id.exists' => 'El puesto seleccionado no existe.',
-            
+
             'department_id.required' => 'Debe seleccionar un departamento.',
             'department_id.exists' => 'El departamento seleccionado no existe.',
+        ];
+    }
+
+    public function attributes(): array
+    {
+        return [
+            'first_name' => 'Nombre',
+            'last_name' => 'Apellido',
+            'email' => 'Email',
+            'phone' => 'Teléfono',
+            'hire_date' => 'Fecha de Contratación',
+            'salary' => 'Salario',
+            'status' => 'Estado',
+            'birth_date' => 'Fecha de Nacimiento',
+            'address' => 'Dirección',
+            'photo' => 'Foto',
+            'position_id' => 'Puesto',
+            'department_id' => 'Departamento',
         ];
     }
 
