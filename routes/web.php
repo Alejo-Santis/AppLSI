@@ -1,6 +1,5 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Auth\PasswordResetController;
 use App\Http\Controllers\DashboardController;
@@ -10,10 +9,10 @@ use App\Http\Controllers\EmergencyContactController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\PositionController;
 use App\Http\Controllers\ProjectController;
+use App\Http\Controllers\RoleController;
 use App\Http\Controllers\SalaryHistoryController;
 use App\Http\Controllers\UserController;
-use Inertia\Inertia;
-use Symfony\Component\Routing\Attribute\DeprecatedAlias;
+use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
@@ -159,4 +158,30 @@ Route::middleware('auth')->group(function () {
     |--------------------------------------------------------------------------
     */
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+});
+
+// Agregar estas rutas dentro del grupo middleware('auth')
+
+Route::prefix('admin')->middleware(['auth', 'role:admin'])->name('admin.')->group(function () {
+
+    // Gestión de Roles
+    Route::prefix('roles')->name('roles.')->group(function () {
+        Route::get('/', [RoleController::class, 'index'])->name('index');
+        Route::get('/create', [RoleController::class, 'create'])->name('create');
+        Route::post('/store', [RoleController::class, 'store'])->name('store');
+        Route::get('/{role}/edit', [RoleController::class, 'edit'])->name('edit');
+        Route::put('/{role}', [RoleController::class, 'update'])->name('update');
+        Route::delete('/{role}', [RoleController::class, 'destroy'])->name('destroy');
+        Route::get('/{role}/permissions', [RoleController::class, 'permissions'])->name('permissions');
+        Route::post('/{role}/permissions', [RoleController::class, 'syncPermissions'])->name('sync-permissions');
+    });
+
+    // Gestión de Usuarios
+    Route::prefix('users')->name('users.')->group(function () {
+        Route::get('/', [RoleController::class, 'index'])->name('index');
+        Route::get('/{user}/roles', [RoleController::class, 'roles'])->name('userRoles');
+        Route::post('/{user}/roles', [RoleController::class, 'syncRoles'])->name('syncUserRoles');
+        Route::get('/{user}/permissions', [RoleController::class, 'permissions'])->name('userPermissions');
+        Route::post('/{user}/permissions', [RoleController::class, 'syncPermissions'])->name('syncUserPermissions');
+    });
 });

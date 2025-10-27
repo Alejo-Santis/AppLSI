@@ -38,13 +38,30 @@ class HandleInertiaRequests extends Middleware
     {
         return [
             ...parent::share($request),
+            // Información de autenticación mejorada
             'auth' => [
-                'user' => $request->user(),
+                'user' => $request->user() ? [
+                    'id' => $request->user()->id,
+                    'name' => $request->user()->name,
+                    'email' => $request->user()->email,
+                    'role' => $request->user()->role, // Rol básico (admin, hr, manager, employee)
+                    'is_active' => $request->user()->is_active,
+                    'last_login' => $request->user()->last_login,
+                    
+                    // Roles de Spatie (array de nombres)
+                    'roles' => $request->user()->roles->pluck('name')->toArray(),
+                    
+                    // Permisos (array de nombres de permisos)
+                    'permissions' => $request->user()->getAllPermissions()->pluck('name')->toArray(),
+                    
+                    // Métodos helper booleanos
+                    'is_admin' => $request->user()->hasRole('Admin'),
+                    'is_hr' => $request->user()->hasRole('HR'),
+                    'is_manager' => $request->user()->hasRole('Manager'),
+                    'is_employee' => $request->user()->hasRole('Employee'),
+                ] : null,
             ],
-            /* 'flash' => [
-                'success' => fn() => $request->session()->get('success'),
-                'error' => fn() => $request->session()->get('error'),
-            ], */
+
             'flash' => [
                 'data' => fn() => $request->session()->get(Swal::SESSION_KEY),
             ],

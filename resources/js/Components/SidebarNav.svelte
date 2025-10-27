@@ -14,7 +14,7 @@
             ],
         },
         {
-            section: "",
+            section: "Management",
             items: [
                 {
                     label: "Departamentos",
@@ -50,6 +50,16 @@
                     label: "Proyectos",
                     url: "/projects",
                     icon: "solar:code-file-bold",
+                },
+            ],
+        },
+        {
+            section: "Admin",
+            items: [
+                {
+                    label: "Roles y Permisos",
+                    url: "/admin/roles",
+                    icon: "solar:settings-bold",
                 },
             ],
         },
