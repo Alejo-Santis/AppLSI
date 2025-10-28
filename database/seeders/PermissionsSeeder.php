@@ -97,6 +97,16 @@ class PermissionsSeeder extends Seeder
             ['name' => 'permissions.assign', 'description' => 'Asignar permisos', 'module' => 'Administración'],
             ['name' => 'users.manage-roles', 'description' => 'Gestionar roles de usuarios', 'module' => 'Administración'],
             ['name' => 'users.manage-permissions', 'description' => 'Gestionar permisos de usuarios', 'module' => 'Administración'],
+
+            // Notificaciones
+            ['name' => 'notifications.view', 'description' => 'Ver notificaciones propias', 'module' => 'Notificaciones'],
+            ['name' => 'notifications.view-all', 'description' => 'Ver todas las notificaciones', 'module' => 'Notificaciones'],
+            ['name' => 'notifications.mark-read', 'description' => 'Marcar como leídas', 'module' => 'Notificaciones'],
+            ['name' => 'notifications.delete', 'description' => 'Eliminar notificaciones propias', 'module' => 'Notificaciones'],
+            ['name' => 'notifications.preferences', 'description' => 'Configurar preferencias', 'module' => 'Notificaciones'],
+            ['name' => 'notifications.send-manual', 'description' => 'Enviar notificaciones manuales', 'module' => 'Notificaciones'],
+            ['name' => 'notifications.manage-templates', 'description' => 'Gestionar plantillas', 'module' => 'Notificaciones'],
+            ['name' => 'notifications.view-analytics', 'description' => 'Ver analytics de notificaciones', 'module' => 'Notificaciones'],
         ];
 
         foreach ($permissions as $permission) {
