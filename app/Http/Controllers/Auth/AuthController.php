@@ -38,7 +38,7 @@ class AuthController extends Controller
         // Verificar si el usuario está activo
         $user = User::where('email', $credentials['email'])->first();
 
-        if ($user && !$user->is_active) {
+        if ($user && ! $user->is_active) {
             return back()->withErrors([
                 'email' => 'Tu cuenta está inactiva. Contacta al administrador.',
             ])->onlyInput('email');
@@ -51,7 +51,7 @@ class AuthController extends Controller
             // Actualizar último login
             Auth::user()->update(['last_login' => now()]);
 
-            return redirect()->intended(route('dashboard'))
+            return redirect()->route('dashboard')
                 ->with('success', '¡Bienvenido de nuevo!');
         }
 

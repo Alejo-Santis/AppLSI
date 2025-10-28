@@ -47,13 +47,14 @@ class HandleInertiaRequests extends Middleware
                     'role' => $request->user()->role, // Rol básico (admin, hr, manager, employee)
                     'is_active' => $request->user()->is_active,
                     'last_login' => $request->user()->last_login,
-                    
+                    'avatar' => $request->user()->avatar,
+
                     // Roles de Spatie (array de nombres)
                     'roles' => $request->user()->roles->pluck('name')->toArray(),
-                    
+
                     // Permisos (array de nombres de permisos)
                     'permissions' => $request->user()->getAllPermissions()->pluck('name')->toArray(),
-                    
+
                     // Métodos helper booleanos
                     'is_admin' => $request->user()->hasRole('Admin'),
                     'is_hr' => $request->user()->hasRole('HR'),
@@ -63,7 +64,7 @@ class HandleInertiaRequests extends Middleware
             ],
 
             'flash' => [
-                'data' => fn() => $request->session()->get(Swal::SESSION_KEY),
+                'data' => fn () => $request->session()->get(Swal::SESSION_KEY),
             ],
         ];
     }
