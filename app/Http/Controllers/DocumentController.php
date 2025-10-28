@@ -8,7 +8,6 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
-use Inertia\Inertia;
 use SweetAlert2\Laravel\Swal;
 
 class DocumentController extends Controller
@@ -51,12 +50,12 @@ class DocumentController extends Controller
 
             $validated = $request->validate([
                 'title' => ['required', 'string', 'max:255'],
-                'document_type' => ['required', 'in:' . implode(',', array_keys(Document::getDocumentTypes()))],
+                'document_type' => ['required', 'in:'.implode(',', array_keys(Document::getDocumentTypes()))],
                 'file' => [
                     'required',
                     'file',
-                    'max:' . (Document::getMaxFileSize() / 1024), // en KB
-                    'mimes:' . implode(',', Document::getAllowedExtensions())
+                    'max:'.(Document::getMaxFileSize() / 1024), // en KB
+                    'mimes:'.implode(',', Document::getAllowedExtensions()),
                 ],
             ], [
                 'title.required' => 'El título es obligatorio',
@@ -65,13 +64,20 @@ class DocumentController extends Controller
                 'file.required' => 'Debe seleccionar un archivo',
                 'file.file' => 'El archivo no es válido',
                 'file.max' => 'El archivo no puede superar los 10MB',
-                'file.mimes' => 'Formato de archivo no permitido. Formatos válidos: ' . implode(', ', Document::getAllowedExtensions()),
+                'file.mimes' => 'Formato de archivo no permitido. Formatos válidos: '.implode(', ', Document::getAllowedExtensions()),
             ]);
 
             // Subir archivo
             $file = $request->file('file');
-            $fileName = time() . '_' . $file->getClientOriginalName();
-            $filePath = $file->storeAs('employees/documents/' . $employee->id, $fileName, 'public');
+            $fileName = time().'_'.$file->getClientOriginalName();
+
+            // Crear el directorio si no existe
+            $directory = 'employees/documents/'.$employee->id;
+            if (! Storage::disk('public')->exists($directory)) {
+                Storage::disk('public')->makeDirectory($directory, 0775, true);
+            }
+
+            $filePath = $file->storeAs($directory, $fileName, 'public');
 
             // Crear documento
             $document = Document::create([
@@ -86,7 +92,7 @@ class DocumentController extends Controller
 
             Swal::success([
                 'title' => '¡Creado!',
-                'text' => 'Empleado creado exitosamente',
+                'text' => 'Documento creado exitosamente',
                 'icon' => 'success',
             ]);
 
@@ -94,7 +100,7 @@ class DocumentController extends Controller
         } catch (Exception $e) {
             Swal::error([
                 'title' => 'Error al Crear!',
-                'text' => 'No es posible crear el documento' . $e->getMessage(),
+                'text' => 'No es posible crear el documento'.$e->getMessage(),
                 'icon' => 'error',
             ]);
         }
@@ -111,7 +117,7 @@ class DocumentController extends Controller
         }
 
         // Verificar que el archivo existe
-        if (!Storage::disk('public')->exists($document->file_path)) {
+        if (! Storage::disk('public')->exists($document->file_path)) {
             Swal::error([
                 'title' => 'Error!',
                 'text' => 'Archivo no encontrado',
@@ -142,7 +148,7 @@ class DocumentController extends Controller
         }
 
         // Verificar que el archivo existe
-        if (!Storage::disk('public')->exists($document->file_path)) {
+        if (! Storage::disk('public')->exists($document->file_path)) {
             Swal::error([
                 'title' => 'Error!',
                 'text' => 'Archivo no encontrado',
@@ -152,7 +158,7 @@ class DocumentController extends Controller
         }
 
         // Solo permitir preview de PDFs e imágenes
-        if (!$document->isPdf() && !$document->isImage()) {
+        if (! $document->isPdf() && ! $document->isImage()) {
             return redirect()->route('employees.documents.documents.download', [$employee, $document]);
         }
 
@@ -181,7 +187,6 @@ class DocumentController extends Controller
         if (Storage::disk('public')->exists($document->file_path)) {
             Storage::disk('public')->delete($document->file_path);
         }
-
 
         // Eliminar registro
         $document->delete();
