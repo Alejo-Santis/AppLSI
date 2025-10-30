@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\Document\DocumentExpiring;
 use App\Models\Document;
 use App\Models\Employee;
 use Exception;
@@ -89,6 +90,14 @@ class DocumentController extends Controller
                 'uploaded_by' => Auth::id(),
                 'upload_date' => now(),
             ]);
+
+            // Si el documento tiene fecha de vencimiento próxima, disparar evento
+            if ($document->expiration_date) {
+                $daysUntilExpiration = now()->diffInDays($document->expiration_date, false);
+                if ($daysUntilExpiration <= 30 && $daysUntilExpiration > 0) {
+                    event(new DocumentExpiring($document, $document->expiration_date));
+                }
+            }
 
             Swal::success([
                 'title' => '¡Creado!',

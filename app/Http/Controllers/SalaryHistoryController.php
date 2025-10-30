@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\Salary\SalaryUpdated;
 use App\Models\SalaryHistory;
 use App\Models\Employee;
 use Exception;
@@ -72,7 +73,7 @@ class SalaryHistoryController extends Controller
             }
 
             // Crear registro en historial
-            SalaryHistory::create([
+            $salaryHistory =SalaryHistory::create([
                 'employee_id' => $employee->id,
                 'previous_salary' => $previousSalary,
                 'new_salary' => $validated['new_salary'],
@@ -83,6 +84,13 @@ class SalaryHistoryController extends Controller
 
             // Actualizar el salario del empleado
             $employee->update(['salary' => $validated['new_salary']]);
+
+            event(new SalaryUpdated(
+                $employee,
+                $salaryHistory,
+                Auth::user(),
+                $previousSalary
+            ));
 
             Swal::success([
                 'title' => 'Actualizado',

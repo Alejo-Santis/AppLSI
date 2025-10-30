@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\Employee\EmployeeCreated;
+use App\Events\Employee\EmployeeDeleted;
 use App\Exports\EmployeesExport;
 use App\Http\Requests\Employee\StoreEmployeeRequest;
 use App\Http\Requests\Employee\UpdateEmployeeRequest;
@@ -12,6 +14,7 @@ use App\Models\Position;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use Maatwebsite\Excel\Facades\Excel;
@@ -97,7 +100,10 @@ class EmployeeController extends Controller
                 $validated['photo_url'] = $request->file('photo')->store('employees/photos', 'public');
             }
 
-            Employee::create($validated);
+            $employee = Employee::create($validated);
+
+            // Disparar evento para enviar notificaciones automáticamente
+            event(new EmployeeCreated($employee, Auth::user()));
 
             Swal::success([
                 'title' => '¡Creado!',
@@ -238,6 +244,8 @@ class EmployeeController extends Controller
      */
     public function destroyEmployee(Employee $employee)
     {
+        $employee->load('department', 'position');
+
         // Verificar si tiene proyectos activos
         if ($employee->projectAssignments()->where('is_active', true)->exists()) {
             Swal::error([
@@ -259,6 +267,15 @@ class EmployeeController extends Controller
 
             return back();
         }
+
+        // Guardar información del empleado antes de eliminarlo
+        // (necesitamos esto para el evento porque después del delete no tendremos la info)
+        $employeeData = $employee->replicate();
+        $employeeData->department = $employee->department;
+        $employeeData->position = $employee->position;
+
+        // Disparar evento para notificar la eliminación
+        event(new EmployeeDeleted($employeeData, Auth::user(), 'Eliminación desde el sistema'));
 
         // Soft delete
         $employee->delete();

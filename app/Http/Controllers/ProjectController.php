@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\Project\ProjectAssignment;
 use App\Exports\ProjectsExport;
 use App\Http\Requests\Project\StoreProjectRequest;
 use App\Http\Requests\Project\UpdateProjectRequest;
@@ -11,6 +12,7 @@ use App\Models\Project;
 use App\Models\ProjectAssignments;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 use Maatwebsite\Excel\Facades\Excel;
@@ -268,6 +270,15 @@ class ProjectController extends Controller
                 'allocation_percentage' => $validated['allocation_percentage'],
                 'is_active' => true,
             ]);
+
+            $employee = Employee::find($validated['employee_id']);
+            event(new ProjectAssignment(
+                $project,
+                $employee,
+                Auth::user(),
+                true,
+                $validated['role']
+            ));
 
             Swal::success([
                 'title' => 'Asignado',
